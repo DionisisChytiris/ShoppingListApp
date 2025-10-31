@@ -5,14 +5,17 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radius, typography } from '../lib/theme';
 import { useTheme } from '../lib/themeContext';
+import { useNavigation } from '@react-navigation/native';
 
 export default function SettingsScreen() {
   const { currentTheme, setTheme, theme } = useTheme();
+  const navigation = useNavigation();
 
   const themeOptions = [
     {
@@ -47,6 +50,13 @@ export default function SettingsScreen() {
             Settings
           </Text>
         </View>
+
+        <Pressable
+          onPress={() => (navigation as any).navigate('Lists')}
+          style={{position: 'absolute', top: 100, right: 20}}
+        >
+          <Text style={{color: theme.colors.onSurface}}>Back</Text>
+        </Pressable>
 
         <ScrollView
           contentContainerStyle={styles.scrollContent}

@@ -71,7 +71,7 @@ const ListsScreen = ({ navigation }: any) => {
   };
 
   return (
-    <SafeAreaView edges={["top"]} style={styles.container}>
+    <SafeAreaView edges={["top"]} style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
       <TouchableOpacity
         style={styles.settingsButton}
         onPress={() => navigation.navigate("Settings" as never)}
@@ -83,13 +83,13 @@ const ListsScreen = ({ navigation }: any) => {
         />
       </TouchableOpacity>
       <View style={{ padding: 20, alignItems: "center" }}>
-        <Text style={{ fontSize: 24, fontWeight: "bold" }}>
+        <Text style={{ fontSize: 24, fontWeight: "bold",color: theme.colors.onSurface }}>
           Shopping Helper
         </Text>
-        <Text style={{ fontSize: 14, marginTop: 6 }}>0 lists</Text>
+        <Text style={{ fontSize: 14, marginTop: 6, color: theme.colors.onSurfaceVariant }}>0 lists</Text>
       </View>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Create New List</Text>
+        <Text style={[styles.headerTitle, {color: theme.colors.onSurfaceVariant} ]}>Create New List</Text>
         <TouchableOpacity
           // onPress={() => setCreating((c) => !c)}
           onPress={() => setModalVisible(true)}
