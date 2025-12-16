@@ -13,7 +13,7 @@ const store = configureStore({
 (async function hydrate() {
   const data = await loadLists();
   if (data && Array.isArray(data)) {
-    // @ts-ignore
+    // @ts-expect-error - setLists expects a different type but data is valid
     store.dispatch(setLists(data));
   }
 })();
@@ -23,7 +23,7 @@ let saveTimer: NodeJS.Timeout | null = null;
 store.subscribe(() => {
   if (saveTimer) clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
-    // @ts-ignore
+    // @ts-expect-error - Type assertion needed for state access
     const state = store.getState().lists.lists;
     saveLists(state);
   }, 400);

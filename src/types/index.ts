@@ -13,6 +13,7 @@ export type ShoppingList = {
   title: string;
   createdAt: number;
   items: Item[];
+  isFavorite?: boolean;
 };
 
 export type RootStackParamList = {

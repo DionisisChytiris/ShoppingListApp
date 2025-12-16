@@ -47,6 +47,12 @@ const listsSlice = createSlice({
       const item = list.items.find((i) => i.id === action.payload.itemId);
       if (item) item.checked = !item.checked;
     },
+    toggleFavorite(state, action: PayloadAction<{ id: string }>) {
+      const list = state.lists.find((l) => l.id === action.payload.id);
+      if (list) {
+        list.isFavorite = !list.isFavorite;
+      }
+    },
   },
 });
 
@@ -59,6 +65,7 @@ export const {
   updateItem,
   deleteItem,
   toggleItemChecked,
+  toggleFavorite,
 } = listsSlice.actions;
 
 export default listsSlice.reducer;

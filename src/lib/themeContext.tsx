@@ -21,7 +21,8 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const loadTheme = async () => {
     try {
       const savedTheme = await AsyncStorage.getItem('selectedTheme');
-      if (savedTheme && (savedTheme === 'light' || savedTheme === 'warm' || savedTheme === 'dark')) {
+      const validThemes: ThemeVariant[] = ['light', 'warm', 'dark', 'blue', 'green', 'purple', 'pink', 'ocean', 'amber'];
+      if (savedTheme && validThemes.includes(savedTheme as ThemeVariant)) {
         setCurrentTheme(savedTheme as ThemeVariant);
       }
     } catch (error) {

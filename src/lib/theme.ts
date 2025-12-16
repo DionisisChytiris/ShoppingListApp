@@ -4,6 +4,7 @@ export const spacing = {
   md: 16,
   lg: 24,
   xl: 32,
+  xxl:44
 };
 
 export const radii = {
@@ -87,7 +88,7 @@ export const typography = {
 
 
 // Theme variants with different background colors
-export type ThemeVariant = 'light' | 'warm' | 'dark';
+export type ThemeVariant = 'light' | 'warm' | 'dark' | 'blue' | 'green' | 'purple' | 'pink' | 'ocean' | 'amber';
 
 export const lightTheme = {
   name: 'light' as ThemeVariant,
@@ -113,14 +114,94 @@ export const warmTheme = {
 
 export const darkTheme = {
   name: 'dark' as ThemeVariant,
-  backgroundColor: '#1A1A2E',
+  backgroundColor: '#0F0F1E',
   colors: {
     ...colors,
-    background: '#1A1A2E',
-    surface: '#16213E',
-    surfaceVariant: '#0F3460',
-    onSurface: '#FFFFFF',
-    onSurfaceVariant: '#B0B0B0',
+    background: '#0F0F1E',
+    surface: '#1A1A2A',
+    surfaceVariant: '#252538',
+    onSurface: '#E8E8F0',
+    onSurfaceVariant: '#A0A0B0',
+    border: '#2A2A3A',
+    outline: '#2A2A3A',
+  },
+};
+
+export const blueTheme = {
+  name: 'blue' as ThemeVariant,
+  backgroundColor: '#E8F4FD',
+  colors: {
+    ...colors,
+    primary: '#0066CC',
+    background: '#E8F4FD',
+    surface: '#F0F8FF',
+    surfaceVariant: '#D0E8FF',
+    primaryLight: '#E0F0FF',
+  },
+};
+
+export const greenTheme = {
+  name: 'green' as ThemeVariant,
+  backgroundColor: '#E8F5E9',
+  colors: {
+    ...colors,
+    primary: '#2E7D32',
+    background: '#E8F5E9',
+    surface: '#F1F8F4',
+    surfaceVariant: '#C8E6C9',
+    primaryLight: '#E0F2E1',
+  },
+};
+
+export const purpleTheme = {
+  name: 'purple' as ThemeVariant,
+  backgroundColor: '#F3E5F5',
+  colors: {
+    ...colors,
+    primary: '#7B1FA2',
+    background: '#F3E5F5',
+    surface: '#FAF5FC',
+    surfaceVariant: '#E1BEE7',
+    primaryLight: '#F0E5F5',
+  },
+};
+
+export const pinkTheme = {
+  name: 'pink' as ThemeVariant,
+  backgroundColor: '#FCE4EC',
+  colors: {
+    ...colors,
+    primary: '#C2185B',
+    background: '#FCE4EC',
+    surface: '#FFF0F5',
+    surfaceVariant: '#F8BBD0',
+    primaryLight: '#FFE5ED',
+  },
+};
+
+export const oceanTheme = {
+  name: 'ocean' as ThemeVariant,
+  backgroundColor: '#E0F2F1',
+  colors: {
+    ...colors,
+    primary: '#00695C',
+    background: '#E0F2F1',
+    surface: '#F0F9F8',
+    surfaceVariant: '#B2DFDB',
+    primaryLight: '#E0F0EF',
+  },
+};
+
+export const amberTheme = {
+  name: 'amber' as ThemeVariant,
+  backgroundColor: '#FFF8E1',
+  colors: {
+    ...colors,
+    primary: '#FF6F00',
+    background: '#FFF8E1',
+    surface: '#FFFEF5',
+    surfaceVariant: '#FFE082',
+    primaryLight: '#FFF3E0',
   },
 };
 
@@ -128,6 +209,12 @@ export const themes = {
   light: lightTheme,
   warm: warmTheme,
   dark: darkTheme,
+  blue: blueTheme,
+  green: greenTheme,
+  purple: purpleTheme,
+  pink: pinkTheme,
+  ocean: oceanTheme,
+  amber: amberTheme,
 };
 
 // export default {

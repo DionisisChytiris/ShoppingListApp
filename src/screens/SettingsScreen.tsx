@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -9,54 +9,51 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, spacing, radius, typography } from '../lib/theme';
+import { colors, spacing, radius, typography, radii } from '../lib/theme';
 import { useTheme } from '../lib/themeContext';
 import { useNavigation } from '@react-navigation/native';
+import ThemeSelectionModal from '../modals/ThemeSelectionModal';
 
 export default function SettingsScreen() {
   const { currentTheme, setTheme, theme } = useTheme();
   const navigation = useNavigation();
+  const [themeModalVisible, setThemeModalVisible] = useState(false);
 
-  const themeOptions = [
-    {
-      id: 'light',
-      name: 'Light',
-      description: 'Clean and bright',
-      backgroundColor: '#FFFFFF',
-      icon: 'sunny-outline',
-    },
-    {
-      id: 'warm',
-      name: 'Warm',
-      description: 'Cozy and warm',
-      backgroundColor: '#FFF8F0',
-      icon: 'flame-outline',
-    },
-    {
-      id: 'dark',
-      name: 'Dark',
-      description: 'Easy on the eyes',
-      backgroundColor: '#1A1A2E',
-      icon: 'moon-outline',
-    },
-  ];
+  // Get current theme info for display
+  const getCurrentThemeInfo = () => {
+    const themes: Record<string, { name: string; backgroundColor: string; accentColor: string }> = {
+      light: { name: 'Light', backgroundColor: '#FFFFFF', accentColor: '#0B84FF' },
+      warm: { name: 'Warm', backgroundColor: '#FFF8F0', accentColor: '#FF6B35' },
+      dark: { name: 'Dark', backgroundColor: '#0F0F1E', accentColor: '#6C63FF' },
+      blue: { name: 'Blue', backgroundColor: '#E8F4FD', accentColor: '#0066CC' },
+      green: { name: 'Green', backgroundColor: '#E8F5E9', accentColor: '#2E7D32' },
+      purple: { name: 'Purple', backgroundColor: '#F3E5F5', accentColor: '#7B1FA2' },
+      pink: { name: 'Pink', backgroundColor: '#FCE4EC', accentColor: '#C2185B' },
+      ocean: { name: 'Ocean', backgroundColor: '#E0F2F1', accentColor: '#00695C' },
+      amber: { name: 'Amber', backgroundColor: '#FFF8E1', accentColor: '#FF6F00' },
+    };
+    return themes[currentTheme] || themes.light;
+  };
+
+  const currentThemeInfo = getCurrentThemeInfo();
 
   return (
     <View style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
       <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { borderBottomColor: theme.colors.outline }]}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={[styles.backButton, { backgroundColor: theme.colors.surfaceVariant }]}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="arrow-back" size={20} color={theme.colors.onSurface} />
+          </TouchableOpacity>
           <Text style={[styles.headerTitle, { color: theme.colors.onSurface }]}>
             Settings
           </Text>
+          <View style={{ width: 40 }} />
         </View>
-
-        <Pressable
-          onPress={() => (navigation as any).navigate('Lists')}
-          style={{position: 'absolute', top: 100, right: 20}}
-        >
-          <Text style={{color: theme.colors.onSurface}}>Back</Text>
-        </Pressable>
 
         <ScrollView
           contentContainerStyle={styles.scrollContent}
@@ -65,71 +62,52 @@ export default function SettingsScreen() {
           {/* Theme Section */}
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-              Choose Theme
+              Appearance
             </Text>
             <Text style={[styles.sectionDescription, { color: theme.colors.onSurfaceVariant }]}>
-              Pick your favorite color scheme
+              Customize the app appearance
             </Text>
 
-            <View style={styles.themeGrid}>
-              {themeOptions.map((option) => (
-                <TouchableOpacity
-                  key={option.id}
+            <TouchableOpacity
+              style={[styles.themeButton, { 
+                backgroundColor: theme.colors.surface,
+                borderColor: theme.colors.border,
+              }]}
+              onPress={() => setThemeModalVisible(true)}
+              activeOpacity={0.7}
+            >
+              <View style={styles.themeButtonLeft}>
+                <View
                   style={[
-                    styles.themeCard,
+                    styles.themePreviewCircle,
                     {
-                      backgroundColor: theme.colors.surface,
-                      borderColor:
-                        currentTheme === option.id
-                          ? theme.colors.primary
-                          : theme.colors.border,
-                      borderWidth: currentTheme === option.id ? 2 : 1,
+                      backgroundColor: currentThemeInfo.backgroundColor,
+                      borderColor: currentThemeInfo.accentColor,
                     },
                   ]}
-                  onPress={() => setTheme(option.id as any)}
-                  activeOpacity={0.7}
                 >
-                  {/* Color Preview Circle */}
                   <View
                     style={[
-                      styles.colorPreview,
-                      { backgroundColor: option.backgroundColor },
+                      styles.themeAccentDot,
+                      { backgroundColor: currentThemeInfo.accentColor },
                     ]}
                   />
-
-                  {/* Theme Name */}
-                  <Text
-                    style={[
-                      styles.themeName,
-                      { color: theme.colors.onSurface },
-                    ]}
-                  >
-                    {option.name}
+                </View>
+                <View style={styles.themeButtonText}>
+                  <Text style={[styles.themeButtonTitle, { color: theme.colors.onSurface }]}>
+                    Theme
                   </Text>
-
-                  {/* Description */}
-                  <Text
-                    style={[
-                      styles.themeDescription,
-                      { color: theme.colors.onSurfaceVariant },
-                    ]}
-                  >
-                    {option.description}
+                  <Text style={[styles.themeButtonSubtitle, { color: theme.colors.onSurfaceVariant }]}>
+                    {currentThemeInfo.name}
                   </Text>
-
-                  {/* Check Icon */}
-                  {currentTheme === option.id && (
-                    <View style={styles.checkIcon}>
-                      <Ionicons
-                        name="checkmark-circle"
-                        size={24}
-                        color={theme.colors.primary}
-                      />
-                    </View>
-                  )}
-                </TouchableOpacity>
-              ))}
-            </View>
+                </View>
+              </View>
+              <Ionicons
+                name="chevron-forward"
+                size={20}
+                color={theme.colors.onSurfaceVariant}
+              />
+            </TouchableOpacity>
           </View>
 
           {/* About Section */}
@@ -156,6 +134,13 @@ export default function SettingsScreen() {
           </View>
         </ScrollView>
       </SafeAreaView>
+
+      <ThemeSelectionModal
+        visible={themeModalVisible}
+        onClose={() => setThemeModalVisible(false)}
+        currentTheme={currentTheme}
+        onSelectTheme={setTheme}
+      />
     </View>
   );
 }
@@ -168,10 +153,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: colors.divider,
+    gap: spacing.md,
+  },
+  backButton: {
+    width: 36,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: radii.sm,
   },
   headerTitle: {
     ...typography.heading2,
@@ -190,36 +184,51 @@ const styles = StyleSheet.create({
   sectionDescription: {
     ...typography.bodySmall,
   },
-  themeGrid: {
-    gap: spacing.md,
-    marginTop: spacing.md,
-  },
-  themeCard: {
-    borderRadius: radius.md,
-    paddingVertical: spacing.lg,
-    paddingHorizontal: spacing.md,
+  themeButton: {
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
-    position: 'relative',
-  },
-  colorPreview: {
-    width: 80,
-    height: 80,
-    borderRadius: radius.lg,
-    marginBottom: spacing.sm,
+    justifyContent: 'space-between',
+    padding: spacing.md,
+    borderRadius: radii.md,
     borderWidth: 1,
-    borderColor: colors.border,
+    marginTop: spacing.md,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
-  themeName: {
-    ...typography.button,
+  themeButtonLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    flex: 1,
   },
-  themeDescription: {
+  themePreviewCircle: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    borderWidth: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  themeAccentDot: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2.5,
+    borderColor: '#FFFFFF',
+  },
+  themeButtonText: {
+    flex: 1,
+  },
+  themeButtonTitle: {
+    ...typography.body,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  themeButtonSubtitle: {
     ...typography.bodySmall,
-  },
-  checkIcon: {
-    position: 'absolute',
-    top: spacing.md,
-    right: spacing.md,
   },
   aboutCard: {
     borderRadius: radius.md,
