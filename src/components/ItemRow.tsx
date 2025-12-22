@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Item } from '../types';
-import { colors, spacing, radii, type } from '../lib/theme';
+import { colors, spacing, radii, typography, fontSizes } from '../lib/theme';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useTheme } from '../lib/themeContext';
 
@@ -46,6 +46,14 @@ export default function ItemRow({ item, onToggle, onEdit, onDelete }: Props) {
         ]}>
           {item.name}
         </Text>
+        {item.description && (
+          <Text style={[
+            styles.description,
+            { color: theme.colors.onSurfaceVariant }
+          ]}>
+            {item.description}
+          </Text>
+        )}
         {item.price && (
           <Text style={[styles.price, { color: theme.colors.onSurfaceVariant }]}>
             ${item.price.toFixed(2)}
@@ -116,17 +124,24 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   name: {
-    fontSize: type.body,
-    fontWeight: '500',
-    marginBottom: 2,
+    fontSize: typography.body.fontSize,
+    fontWeight: typography.body.fontWeight as '400',
+    marginBottom: 4,
+  },
+  description: {
+    fontSize: typography.bodySmall.fontSize,
+    fontWeight: typography.bodySmall.fontWeight as '400',
+    marginBottom: 4,
+    lineHeight: typography.bodySmall.lineHeight,
+    opacity: 0.8,
   },
   price: {
-    fontSize: type.small,
+    fontSize: typography.label.fontSize,
     marginTop: 2,
-    fontWeight: '500',
+    fontWeight: typography.label.fontWeight as '500',
   },
   quantity: {
-    fontSize: type.small,
+    fontSize: fontSizes.small,
     marginTop: 2,
   },
   thumb: {

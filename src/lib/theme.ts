@@ -13,7 +13,7 @@ export const radii = {
   lg: 14,
 };
 
-export const type = {
+export const fontSizes = {
   header: 20,
   title: 16,
   body: 14,

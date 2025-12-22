@@ -16,7 +16,7 @@ import { useNavigation } from "@react-navigation/native";
 import { addList } from "../../redux/listsSlice";
 import type { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../types";
-import { colors, spacing, radii, type, typography } from "../lib/theme";
+import { colors, spacing, radii, fontSizes, typography } from "../lib/theme";
 import { useTheme } from "../lib/themeContext";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   subtitle: {
-    fontSize: type.body,
+    fontSize: fontSizes.body,
     textAlign: "center",
   },
   content: {
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: radii.md,
     padding: spacing.md,
-    fontSize: type.body,
+    fontSize: fontSizes.body,
     fontWeight: "500",
   },
   actions: {

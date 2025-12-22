@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,8 +6,6 @@ import {
   FlatList,
   TouchableOpacity,
   TextInput,
-  KeyboardAvoidingView,
-  Platform,
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -20,9 +18,9 @@ import {
   updateListTitle,
 } from "../../redux/listsSlice";
 import ItemRow from "../components/ItemRow";
-import PhotoPicker from "../components/PhotoPicker";
 import { uid } from "../lib/uid";
-import { colors, spacing, type, radii } from "../lib/theme";
+import AddItemModal from "../modals/AddItemModal";
+import { colors, spacing, radii, typography } from "../lib/theme";
 import { Item, ShoppingList } from "../types/index";
 import { useTheme } from "../lib/themeContext";
 import { Ionicons } from "@expo/vector-icons";
@@ -30,16 +28,14 @@ import { formatDateTime } from "../lib/dateUtils";
 
 export default function ListEditorScreen({ route, navigation }: any) {
   const { listId } = route.params;
-  const list:ShoppingList| any = useAppSelector((s) =>
+  const list: ShoppingList | undefined = useAppSelector((s) =>
     s.lists.lists.find((l) => l.id === listId)
   );
   const dispatch = useAppDispatch();
   const { theme } = useTheme();
 
   const [editingItem, setEditingItem] = useState<Item | null>(null);
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
-  const [photo, setPhoto] = useState<string | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
   const [title, setTitle] = useState(list?.title ?? "");
 
   // keep title in sync when list loads
@@ -67,46 +63,39 @@ export default function ListEditorScreen({ route, navigation }: any) {
   const checkedCount = list.items.filter((i: Item) => i.checked).length;
   const totalItems = list.items.length;
 
-  function beginAdd() {
+  function openAddModal() {
     setEditingItem(null);
-    setName("");
-    setPrice("");
-    setPhoto(null);
+    setModalVisible(true);
   }
 
-  function beginEdit(item: Item) {
+  function openEditModal(item: Item) {
     setEditingItem(item);
-    setName(item.name);
-    setPrice(item.price ? String(item.price) : "");
-    setPhoto(item.photoUri ?? null);
+    setModalVisible(true);
   }
 
-  function onSaveItem() {
-    if (!name.trim()) return;
+  function handleSaveItem(itemData: Omit<Item, 'id' | 'createdAt'>) {
     if (editingItem) {
       const updated: Item = {
         ...editingItem,
-        name: name.trim(),
-        price: price ? Number(price) : undefined,
-        photoUri: photo,
+        ...itemData,
         createdAt: editingItem.createdAt,
       };
       dispatch(updateItem({ listId: list.id, item: updated }));
     } else {
       const newItem: Item = {
         id: uid("item_"),
-        name: name.trim(),
-        price: price ? Number(price) : undefined,
-        photoUri: photo,
-        quantity: 1,
-        checked: false,
+        ...itemData,
+        quantity: itemData.quantity ?? 1,
+        checked: itemData.checked ?? false,
         createdAt: Date.now(),
       };
       dispatch(addItem({ listId: list.id, item: newItem }));
     }
-    setName("");
-    setPrice("");
-    setPhoto(null);
+    setEditingItem(null);
+  }
+
+  function handleCloseModal() {
+    setModalVisible(false);
     setEditingItem(null);
   }
 
@@ -187,7 +176,7 @@ export default function ListEditorScreen({ route, navigation }: any) {
             onToggle={() =>
               dispatch(toggleItemChecked({ listId: list.id, itemId: item.id }))
             }
-            onEdit={() => beginEdit(item)}
+            onEdit={() => openEditModal(item)}
             onDelete={() => onDeleteItem(item.id)}
           />
         )}
@@ -211,86 +200,27 @@ export default function ListEditorScreen({ route, navigation }: any) {
         }
       />
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        keyboardVerticalOffset={90}
-      >
-        <View style={[styles.editor, { 
-          backgroundColor: theme.colors.surface,
-          borderTopColor: theme.colors.outline 
-        }]}>
-          {editingItem && (
-            <View style={[styles.editingBadge, { backgroundColor: theme.colors.primaryLight }]}>
-              <Ionicons name="create-outline" size={16} color={theme.colors.primary} />
-              <Text style={[styles.editingText, { color: theme.colors.primary }]}>
-                Editing item
-              </Text>
-            </View>
-          )}
-          <View style={styles.inputContainer}>
-            <View style={styles.inputRow}>
-              <TextInput
-                placeholder="Item name"
-                placeholderTextColor={theme.colors.onSurfaceVariant}
-                value={name}
-                onChangeText={setName}
-                style={[
-                  styles.input,
-                  { 
-                    backgroundColor: theme.colors.surfaceVariant,
-                    color: theme.colors.onSurface 
-                  }
-                ]}
-              />
-              <TextInput
-                placeholder="Price"
-                placeholderTextColor={theme.colors.onSurfaceVariant}
-                keyboardType="decimal-pad"
-                value={price}
-                onChangeText={setPrice}
-                style={[
-                  styles.priceInput,
-                  { 
-                    backgroundColor: theme.colors.surfaceVariant,
-                    color: theme.colors.onSurface 
-                  }
-                ]}
-              />
-            </View>
-            <PhotoPicker uri={photo ?? undefined} onChange={setPhoto} />
-          </View>
+      {/* Add Item Button */}
+      <View style={[styles.addButtonContainer, { backgroundColor: theme.colors.surface }]}>
+        <TouchableOpacity
+          onPress={openAddModal}
+          style={[styles.addButton, { backgroundColor: theme.colors.primary }]}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="add" size={24} color={colors.onPrimary} />
+          <Text style={[styles.addButtonText, { color: colors.onPrimary }]}>
+            Add Item
+          </Text>
+        </TouchableOpacity>
+      </View>
 
-          <View style={styles.actionsRight}>
-            {editingItem && (
-              <TouchableOpacity 
-                onPress={beginAdd} 
-                style={[styles.smallButton, { backgroundColor: theme.colors.surfaceVariant }]}
-                activeOpacity={0.7}
-              >
-                <Text style={{ color: theme.colors.primary }}>New</Text>
-              </TouchableOpacity>
-            )}
-            <TouchableOpacity
-              onPress={onSaveItem}
-              style={[
-                styles.saveButton,
-                { backgroundColor: theme.colors.primary },
-              ]}
-              activeOpacity={0.8}
-              disabled={!name.trim()}
-            >
-              <Ionicons 
-                name={editingItem ? "checkmark" : "add"} 
-                size={20} 
-                color={colors.onPrimary} 
-              />
-              <Text style={[styles.saveButtonText, { color: colors.onPrimary }]}>
-                {editingItem ? "Save" : "Add"}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </KeyboardAvoidingView>
+      {/* Bottom Sheet Modal */}
+      <AddItemModal
+        visible={modalVisible}
+        onClose={handleCloseModal}
+        onSave={handleSaveItem}
+        editingItem={editingItem}
+      />
     </SafeAreaView>
   );
 }
@@ -313,8 +243,8 @@ const styles = StyleSheet.create({
     borderRadius: radii.sm,
   },
   titleInput: {
-    fontSize: type.header,
-    fontWeight: "700",
+    fontSize: typography.heading3.fontSize,
+    fontWeight: typography.heading3.fontWeight as '600',
     flex: 1,
   },
   doneButton: {
@@ -325,8 +255,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   doneButtonText: {
-    fontSize: type.button,
-    fontWeight: "600",
+    fontSize: typography.button.fontSize,
+    fontWeight: typography.button.fontWeight as '600',
   },
   statsBar: {
     paddingHorizontal: spacing.lg,
@@ -335,12 +265,12 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.outline,
   },
   statsText: {
-    fontSize: type.small,
+    fontSize: typography.bodySmall.fontSize,
     marginBottom: spacing.xs,
-    fontWeight: "500",
+    fontWeight: typography.label.fontWeight as '500',
   },
   dateText: {
-    fontSize: type.small,
+    fontSize: typography.label.fontSize,
     marginTop: spacing.xs,
     opacity: 0.7,
   },
@@ -380,76 +310,31 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   emptyDescription: {
-    fontSize: type.body,
+    fontSize: typography.body.fontSize,
     textAlign: "center",
     paddingHorizontal: spacing.xl,
   },
-  editor: {
+  addButtonContainer: {
     padding: spacing.lg,
     borderTopWidth: 1,
-    gap: spacing.md,
+    borderTopColor: colors.outline,
   },
-  editingBadge: {
+  addButton: {
     flexDirection: "row",
     alignItems: "center",
-    alignSelf: "flex-start",
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: radii.sm,
-    gap: spacing.xs,
-  },
-  editingText: {
-    fontSize: type.small,
-    fontWeight: "600",
-  },
-  inputContainer: {
-    flex: 1,
-    gap: spacing.sm,
-  },
-  inputRow: {
-    flexDirection: "row",
-    gap: spacing.sm,
-  },
-  input: {
-    flex: 1,
-    padding: spacing.md,
-    borderRadius: radii.md,
-    fontSize: type.body,
-  },
-  priceInput: {
-    width: 100,
-    padding: spacing.md,
-    borderRadius: radii.md,
-    fontSize: type.body,
-  },
-  actionsRight: {
-    alignItems: "flex-end",
-    gap: spacing.sm,
-  },
-  smallButton: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: radii.md,
-    minWidth: 70,
-    alignItems: "center",
-  },
-  saveButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderRadius: radii.md,
-    gap: spacing.xs,
-    minWidth: 100,
     justifyContent: "center",
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    borderRadius: radii.md,
+    gap: spacing.sm,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  saveButtonText: {
-    fontSize: type.button,
-    fontWeight: "600",
+  addButtonText: {
+    fontSize: typography.button.fontSize,
+    fontWeight: typography.button.fontWeight as '600',
   },
 });

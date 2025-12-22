@@ -1,0 +1,89 @@
+{
+  "common": {
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "done": "Hecho",
+    "skip": "Omitir",
+    "next": "Siguiente",
+    "create": "Crear",
+    "edit": "Editar",
+    "add": "Añadir",
+    "new": "Nuevo"
+  },
+  "app": {
+    "title": "Ayudante de Compras",
+    "lists": "listas",
+    "list": "lista"
+  },
+  "home": {
+    "mostRecent": "Más Reciente",
+    "favorites": "Favoritos",
+    "allLists": "Todas las Listas",
+    "noListsYet": "Aún no hay listas",
+    "createFirstList": "Crea tu primera lista de compras para comenzar",
+    "createList": "Crear Lista"
+  },
+  "listEditor": {
+    "listName": "Nombre de la lista",
+    "itemsCompleted": "artículos completados",
+    "of": "de",
+    "created": "Creado",
+    "noItemsYet": "Aún no hay artículos",
+    "addItemsBelow": "Añade artículos a tu lista de compras abajo",
+    "addItem": "Añadir Artículo",
+    "deleteItem": "Eliminar artículo",
+    "areYouSure": "¿Estás seguro?",
+    "deleteList": "Eliminar lista"
+  },
+  "addItemModal": {
+    "itemName": "Nombre del artículo",
+    "price": "Precio",
+    "description": "Descripción (opcional)",
+    "addPhoto": "Añadir Foto",
+    "gallery": "Galería",
+    "camera": "Cámara",
+    "editingItem": "Editando artículo",
+    "saveItem": "Guardar Artículo",
+    "addItem": "Añadir Artículo"
+  },
+  "createList": {
+    "title": "Crear Nueva Lista",
+    "subtitle": "Dale un nombre a tu lista de compras",
+    "listTitle": "Título de la lista"
+  },
+  "intro": {
+    "createLists": {
+      "title": "Crear Listas",
+      "description": "Organiza tus compras con múltiples listas"
+    },
+    "trackProgress": {
+      "title": "Seguir Progreso",
+      "description": "Marca los artículos mientras compras y ve tu progreso"
+    },
+    "addPhotos": {
+      "title": "Añadir Fotos",
+      "description": "Toma fotos de artículos para recordar lo que necesitas"
+    },
+    "chooseTheme": {
+      "title": "Elegir Tema",
+      "description": "Personaliza la apariencia de tu aplicación"
+    }
+  },
+  "settings": {
+    "title": "Configuración",
+    "appearance": "Apariencia",
+    "appearanceDescription": "Personaliza la apariencia de la aplicación",
+    "theme": "Tema",
+    "language": "Idioma",
+    "selectTheme": "Seleccionar Tema",
+    "selectLanguage": "Seleccionar Idioma",
+    "about": "Acerca de"
+  },
+  "date": {
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "at": "a las"
+  }
+}
+

@@ -9,10 +9,19 @@ import { StatusBar } from "expo-status-bar";
 import * as NavigationBar from "expo-navigation-bar";
 import { ThemeProvider, useTheme } from "./src/lib/themeContext";
 import RootNavigator from "./RootNavigator";
+import "./src/lib/i18n"; // Initialize i18n
+import { changeLanguage } from "./src/lib/i18n";
+import { useAppSelector } from "./src/hooks";
 
 const AppContent = () => {
   const [showIntro, setShowIntro] = useState<boolean>(true);
   const { theme } = useTheme();
+  const language = useAppSelector((state) => state.language.language);
+
+  // Sync Redux language state with i18next
+  useEffect(() => {
+    changeLanguage(language);
+  }, [language]);
 
   // Set Android navigation bar color to match theme
   useEffect(() => {

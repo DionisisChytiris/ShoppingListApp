@@ -1,0 +1,89 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "done": "Done",
+    "skip": "Skip",
+    "next": "Next",
+    "create": "Create",
+    "edit": "Edit",
+    "add": "Add",
+    "new": "New"
+  },
+  "app": {
+    "title": "Shopping Helper",
+    "lists": "lists",
+    "list": "list"
+  },
+  "home": {
+    "mostRecent": "Most Recent",
+    "favorites": "Favorites",
+    "allLists": "All Lists",
+    "noListsYet": "No lists yet",
+    "createFirstList": "Create your first shopping list to get started",
+    "createList": "Create List"
+  },
+  "listEditor": {
+    "listName": "List name",
+    "itemsCompleted": "items completed",
+    "of": "of",
+    "created": "Created",
+    "noItemsYet": "No items yet",
+    "addItemsBelow": "Add items to your shopping list below",
+    "addItem": "Add Item",
+    "deleteItem": "Delete item",
+    "areYouSure": "Are you sure?",
+    "deleteList": "Delete list"
+  },
+  "addItemModal": {
+    "itemName": "Item name",
+    "price": "Price",
+    "description": "Description (optional)",
+    "addPhoto": "Add Photo",
+    "gallery": "Gallery",
+    "camera": "Camera",
+    "editingItem": "Editing item",
+    "saveItem": "Save Item",
+    "addItem": "Add Item"
+  },
+  "createList": {
+    "title": "Create New List",
+    "subtitle": "Give your shopping list a name",
+    "listTitle": "List title"
+  },
+  "intro": {
+    "createLists": {
+      "title": "Create Lists",
+      "description": "Organize your shopping with multiple lists"
+    },
+    "trackProgress": {
+      "title": "Track Progress",
+      "description": "Check off items as you shop and see your progress"
+    },
+    "addPhotos": {
+      "title": "Add Photos",
+      "description": "Take photos of items to remember what you need"
+    },
+    "chooseTheme": {
+      "title": "Choose Theme",
+      "description": "Customize the look and feel of your app"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance",
+    "appearanceDescription": "Customize the app appearance",
+    "theme": "Theme",
+    "language": "Language",
+    "selectTheme": "Select Theme",
+    "selectLanguage": "Select Language",
+    "about": "About"
+  },
+  "date": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "at": "at"
+  }
+}
+

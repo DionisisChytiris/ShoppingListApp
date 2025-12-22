@@ -17,8 +17,10 @@ import { useNavigation } from '@react-navigation/native';
 import { Alert } from 'react-native';
 import CreateListModal from '../modals/CreateNesList';
 import { formatShortDateTime } from '../lib/dateUtils';
+import { useTranslation } from '../hooks/useTranslation';
 
 export default function HomeScreen() {
+  const { t } = useTranslation();
   const lists = useAppSelector((s) => s.lists.lists);
   const dispatch = useAppDispatch();
   const { theme } = useTheme();
@@ -34,10 +36,10 @@ export default function HomeScreen() {
   );
 
   const onDelete = (id: string) => {
-    Alert.alert("Delete list", "Are you sure?", [
-      { text: "Cancel", style: "cancel" },
+    Alert.alert(t('listEditor.deleteList'), t('listEditor.areYouSure'), [
+      { text: t('common.cancel'), style: "cancel" },
       {
-        text: "Delete",
+        text: t('common.delete'),
         style: "destructive",
         onPress: () => dispatch(deleteList({ id })),
       },
@@ -122,10 +124,10 @@ export default function HomeScreen() {
       <View style={styles.header}>
         <View>
           <Text style={[styles.appTitle, { color: theme.colors.onSurface }]}>
-            Shopping Helper
+            {t('app.title')}
           </Text>
           <Text style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
-            {lists.length} {lists.length === 1 ? 'list' : 'lists'}
+            {lists.length} {lists.length === 1 ? t('app.list') : t('app.lists')}
           </Text>
         </View>
         <View style={styles.headerButtons}>
@@ -142,7 +144,10 @@ export default function HomeScreen() {
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          lists.length === 0 && styles.scrollContentEmpty
+        ]}
       >
         {/* Most Recent List */}
         {recentList && (
@@ -150,7 +155,7 @@ export default function HomeScreen() {
             <View style={styles.sectionHeader}>
               <Ionicons name="time-outline" size={20} color={theme.colors.primary} />
               <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-                Most Recent
+                {t('home.mostRecent')}
               </Text>
             </View>
             {renderListCard(recentList, false)}
@@ -163,7 +168,7 @@ export default function HomeScreen() {
             <View style={styles.sectionHeader}>
               <Ionicons name="star" size={20} color={colors.warning} />
               <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-                Favorites ({favoriteLists.length})
+                {t('home.favorites')} ({favoriteLists.length})
               </Text>
             </View>
             {favoriteLists.slice(0, 3).map(list => renderListCard(list))}
@@ -176,7 +181,7 @@ export default function HomeScreen() {
             <View style={styles.sectionHeader}>
               <Ionicons name="folder-outline" size={20} color={theme.colors.onSurfaceVariant} />
               <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-                All Lists ({otherLists.length})
+                {t('home.allLists')} ({otherLists.length})
               </Text>
             </View>
             {otherLists.slice(0, 5).map(list => renderListCard(list))}
@@ -190,10 +195,10 @@ export default function HomeScreen() {
               <Ionicons name="list-outline" size={48} color={theme.colors.onSurfaceVariant} />
             </View>
             <Text style={[styles.emptyTitle, { color: theme.colors.onSurface }]}>
-              No lists yet
+              {t('home.noListsYet')}
             </Text>
             <Text style={[styles.emptyDescription, { color: theme.colors.onSurfaceVariant }]}>
-              Create your first shopping list to get started
+              {t('home.createFirstList')}
             </Text>
             <TouchableOpacity
               style={[styles.emptyButton, { backgroundColor: theme.colors.primary }]}
@@ -202,7 +207,7 @@ export default function HomeScreen() {
             >
               <MaterialIcons name="add" size={20} color={colors.onPrimary} />
               <Text style={[styles.emptyButtonText, { color: colors.onPrimary }]}>
-                Create List
+                {t('home.createList')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -256,6 +261,9 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.xl,
+  },
+  scrollContentEmpty: {
+    flexGrow: 1,
   },
   section: {
     marginTop: spacing.xl,
@@ -352,11 +360,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   emptyState: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: spacing.xl * 2,
-    minHeight: 400,
+    minHeight: 600
   },
   emptyIconContainer: {
     width: 100,

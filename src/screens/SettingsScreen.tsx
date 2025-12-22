@@ -13,11 +13,19 @@ import { colors, spacing, radius, typography, radii } from '../lib/theme';
 import { useTheme } from '../lib/themeContext';
 import { useNavigation } from '@react-navigation/native';
 import ThemeSelectionModal from '../modals/ThemeSelectionModal';
+import LanguageSelectionModal from '../modals/LanguageSelectionModal';
+import { useAppSelector, useAppDispatch } from '../hooks';
+import { setLanguage, Language } from '../../redux/languageSlice';
+import { useTranslation } from '../hooks/useTranslation';
 
 export default function SettingsScreen() {
+  const { t } = useTranslation();
   const { currentTheme, setTheme, theme } = useTheme();
   const navigation = useNavigation();
   const [themeModalVisible, setThemeModalVisible] = useState(false);
+  const [languageModalVisible, setLanguageModalVisible] = useState(false);
+  const dispatch = useAppDispatch();
+  const currentLanguage = useAppSelector((state) => state.language.language);
 
   // Get current theme info for display
   const getCurrentThemeInfo = () => {
@@ -37,6 +45,22 @@ export default function SettingsScreen() {
 
   const currentThemeInfo = getCurrentThemeInfo();
 
+  // Get current language info for display
+  const getCurrentLanguageInfo = () => {
+    const languages: Record<string, { name: string; nativeName: string; flag: string }> = {
+      en: { name: 'English', nativeName: 'English', flag: '🇬🇧' },
+      es: { name: 'Spanish', nativeName: 'Español', flag: '🇪🇸' },
+      el: { name: 'Greek', nativeName: 'Ελληνικά', flag: '🇬🇷' },
+    };
+    return languages[currentLanguage] || languages.en;
+  };
+
+  const currentLanguageInfo = getCurrentLanguageInfo();
+
+  const handleLanguageChange = (language: Language) => {
+    dispatch(setLanguage(language));
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
       <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
@@ -50,7 +74,7 @@ export default function SettingsScreen() {
             <Ionicons name="arrow-back" size={20} color={theme.colors.onSurface} />
           </TouchableOpacity>
           <Text style={[styles.headerTitle, { color: theme.colors.onSurface }]}>
-            Settings
+            {t('settings.title')}
           </Text>
           <View style={{ width: 40 }} />
         </View>
@@ -62,10 +86,10 @@ export default function SettingsScreen() {
           {/* Theme Section */}
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-              Appearance
+              {t('settings.appearance')}
             </Text>
             <Text style={[styles.sectionDescription, { color: theme.colors.onSurfaceVariant }]}>
-              Customize the app appearance
+              {t('settings.appearanceDescription')}
             </Text>
 
             <TouchableOpacity
@@ -95,10 +119,50 @@ export default function SettingsScreen() {
                 </View>
                 <View style={styles.themeButtonText}>
                   <Text style={[styles.themeButtonTitle, { color: theme.colors.onSurface }]}>
-                    Theme
+                    {t('settings.theme')}
                   </Text>
                   <Text style={[styles.themeButtonSubtitle, { color: theme.colors.onSurfaceVariant }]}>
                     {currentThemeInfo.name}
+                  </Text>
+                </View>
+              </View>
+              <Ionicons
+                name="chevron-forward"
+                size={20}
+                color={theme.colors.onSurfaceVariant}
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.themeButton,
+                {
+                  backgroundColor: theme.colors.surface,
+                  borderColor: theme.colors.border,
+                  marginTop: spacing.md,
+                },
+              ]}
+              onPress={() => setLanguageModalVisible(true)}
+              activeOpacity={0.7}
+            >
+              <View style={styles.themeButtonLeft}>
+                <View
+                  style={[
+                    styles.languagePreview,
+                    {
+                      backgroundColor: theme.colors.surfaceVariant,
+                      borderColor: theme.colors.outline,
+                    },
+                  ]}
+                >
+                  <Text style={styles.flagEmoji}>{currentLanguageInfo.flag}</Text>
+                </View>
+                <View style={styles.themeButtonText}>
+                  <Text style={[styles.themeButtonTitle, { color: theme.colors.onSurface }]}>
+                    {t('settings.language')}
+                  </Text>
+                  <Text style={[styles.themeButtonSubtitle, { color: theme.colors.onSurfaceVariant }]}>
+                    {currentLanguageInfo.name}
                   </Text>
                 </View>
               </View>
@@ -113,7 +177,7 @@ export default function SettingsScreen() {
           {/* About Section */}
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-              About
+              {t('settings.about')}
             </Text>
             <View
               style={[
@@ -140,6 +204,13 @@ export default function SettingsScreen() {
         onClose={() => setThemeModalVisible(false)}
         currentTheme={currentTheme}
         onSelectTheme={setTheme}
+      />
+
+      <LanguageSelectionModal
+        visible={languageModalVisible}
+        onClose={() => setLanguageModalVisible(false)}
+        currentLanguage={currentLanguage}
+        onSelectLanguage={handleLanguageChange}
       />
     </View>
   );
@@ -229,6 +300,17 @@ const styles = StyleSheet.create({
   },
   themeButtonSubtitle: {
     ...typography.bodySmall,
+  },
+  languagePreview: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    borderWidth: 1.5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  flagEmoji: {
+    fontSize: 24,
   },
   aboutCard: {
     borderRadius: radius.md,
