@@ -5,11 +5,10 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, spacing, radius, typography, radii } from '../lib/theme';
+import { spacing, typography, radii } from '../lib/theme';
 import { useTheme } from '../lib/themeContext';
 import { useNavigation } from '@react-navigation/native';
 import ThemeSelectionModal from '../modals/ThemeSelectionModal';
@@ -17,6 +16,8 @@ import LanguageSelectionModal from '../modals/LanguageSelectionModal';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { setLanguage, Language } from '../../redux/languageSlice';
 import { useTranslation } from '../hooks/useTranslation';
+
+/* eslint-disable react-native/no-inline-styles */
 
 export default function SettingsScreen() {
   const { t } = useTranslation();
@@ -217,78 +218,98 @@ export default function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
+  aboutCard: {
+    alignItems: 'center',
+    borderRadius: radius.md,
+    borderWidth: 1,
+    gap: spacing.xs,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.lg,
+  },
+  aboutText: {
+    ...typography.button,
+  } as const,
+  aboutVersion: {
+    ...typography.bodySmall,
+  },
+  backButton: {
+    alignItems: 'center',
+    borderRadius: radii.sm,
+    height: 36,
+    justifyContent: 'center',
+    width: 36,
+  },
   container: {
     flex: 1,
   },
-  safeArea: {
-    flex: 1,
+  flagEmoji: {
+    fontSize: 24,
   },
   header: {
-    flexDirection: 'row',
     alignItems: 'center',
+    borderBottomWidth: 1,
+    flexDirection: 'row',
+    gap: spacing.md,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.lg,
-    borderBottomWidth: 1,
-    gap: spacing.md,
-  },
-  backButton: {
-    width: 36,
-    height: 36,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: radii.sm,
   },
   headerTitle: {
     ...typography.heading2,
   },
+  languagePreview: {
+    alignItems: 'center',
+    borderRadius: 25,
+    borderWidth: 1.5,
+    height: 50,
+    justifyContent: 'center',
+    width: 50,
+  },
+  safeArea: {
+    flex: 1,
+  },
   scrollContent: {
+    gap: spacing.xl,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.xl,
-    gap: spacing.xl,
   },
   section: {
     gap: spacing.md,
   },
-  sectionTitle: {
-    ...typography.heading3,
-  },
   sectionDescription: {
     ...typography.bodySmall,
   },
+  sectionTitle: {
+    ...typography.heading3,
+  },
+  themeAccentDot: {
+    borderColor: '#FFFFFF',
+    borderRadius: 10,
+    borderWidth: 2.5,
+    height: 20,
+    width: 20,
+  },
   themeButton: {
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: spacing.md,
     borderRadius: radii.md,
     borderWidth: 1,
+    elevation: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginTop: spacing.md,
+    padding: spacing.md,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
-    elevation: 1,
   },
   themeButtonLeft: {
+    alignItems: 'center',
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
     flex: 1,
+    gap: spacing.md,
   },
-  themePreviewCircle: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    borderWidth: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  themeAccentDot: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2.5,
-    borderColor: '#FFFFFF',
+  themeButtonSubtitle: {
+    ...typography.bodySmall,
   },
   themeButtonText: {
     flex: 1,
@@ -298,32 +319,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 2,
   },
-  themeButtonSubtitle: {
-    ...typography.bodySmall,
-  },
-  languagePreview: {
-    width: 50,
-    height: 50,
+  themePreviewCircle: {
+    alignItems: 'center',
     borderRadius: 25,
-    borderWidth: 1.5,
+    borderWidth: 2,
+    height: 50,
     justifyContent: 'center',
-    alignItems: 'center',
-  },
-  flagEmoji: {
-    fontSize: 24,
-  },
-  aboutCard: {
-    borderRadius: radius.md,
-    borderWidth: 1,
-    paddingVertical: spacing.lg,
-    paddingHorizontal: spacing.md,
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  aboutText: {
-    ...typography.button,
-  },
-  aboutVersion: {
-    ...typography.bodySmall,
+    width: 50,
   },
 });

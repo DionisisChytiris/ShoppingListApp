@@ -1,6 +1,23 @@
+export type ItemCategory = 
+  | 'fruits'
+  | 'salad'
+  | 'dairy'
+  | 'meat'
+  | 'fish'
+  | 'vegetables'
+  | 'frozen'
+  | 'snacks'
+  | 'beverages'
+  | 'household care'
+  | 'health'
+  | 'pet'
+  | 'home'
+  | 'other';
+
 export type Item = {
   id: string;
   name: string;
+  category?: ItemCategory;
   description?: string;
   price?: number;
   photoUri?: string | null;

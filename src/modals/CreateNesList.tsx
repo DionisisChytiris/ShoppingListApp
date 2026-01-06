@@ -19,6 +19,9 @@ import { RootStackParamList } from "../types";
 import { colors, spacing, radii, fontSizes, typography } from "../lib/theme";
 import { useTheme } from "../lib/themeContext";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { listTitleSchema, validateForm, getFieldError } from "../lib/validation";
+
+/* eslint-disable react-native/no-inline-styles */
 
 type NavigationProp = StackNavigationProp<RootStackParamList, "ListEditor">;
 
@@ -31,16 +34,25 @@ interface CreateListModalProps {
 
 const CreateListModal: React.FC<CreateListModalProps> = ({ visible, onCancel }) => {
   const [title, setTitle] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const dispatch = useDispatch();
   const navigation = useNavigation<NavigationProp>();
   const { theme } = useTheme();
 
   const onCreate = () => {
-    if (!title.trim()) return;
+    // Validate with Zod
+    const validation = validateForm(listTitleSchema, { title });
 
+    if (!validation.success) {
+      setErrors(validation.errors);
+      return;
+    }
+
+    // Clear errors and create list
+    setErrors({});
     const newList = {
       id: uid("list_"),
-      title: title.trim(),
+      title: validation.data.title,
       createdAt: Date.now(),
       items: [],
       isFavorite: false,
@@ -48,14 +60,15 @@ const CreateListModal: React.FC<CreateListModalProps> = ({ visible, onCancel }) 
 
     dispatch(addList(newList));
     setTitle("");
+    setErrors({});
     onCancel(); // close modal
-    (navigation as any).navigate("ListEditor", { listId: newList.id });
+    navigation.navigate("ListEditor", { listId: newList.id });
   };
 
   return (
     <Modal transparent visible={visible} animationType="fade">
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
+        style={styles.keyboardView}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
       >
@@ -81,21 +94,39 @@ const CreateListModal: React.FC<CreateListModalProps> = ({ visible, onCancel }) 
                 placeholder="List title"
                 placeholderTextColor={theme.colors.onSurfaceVariant}
                 value={title}
-                onChangeText={setTitle}
+                onChangeText={(text) => {
+                  setTitle(text);
+                  // Clear error when user starts typing
+                  if (errors.title) {
+                    setErrors((prev) => {
+                      const newErrors = { ...prev };
+                      delete newErrors.title;
+                      return newErrors;
+                    });
+                  }
+                }}
                 style={[
                   styles.input,
                   {
                     backgroundColor: theme.colors.surfaceVariant,
                     color: theme.colors.onSurface,
-                    borderColor: title.trim()
+                    borderColor: getFieldError(errors, 'title')
+                      ? theme.colors.error || '#FF5252'
+                      : title.trim()
                       ? theme.colors.primary
                       : theme.colors.border,
-                  }
+                    borderWidth: 2,
+                  },
                 ]}
                 autoFocus
                 returnKeyType="done"
                 onSubmitEditing={onCreate}
               />
+              {getFieldError(errors, 'title') && (
+                <Text style={[styles.errorText, { color: theme.colors.error || '#FF5252' }]}>
+                  {getFieldError(errors, 'title')}
+                </Text>
+              )}
             </View>
 
             <View style={styles.actions}>
@@ -139,90 +170,98 @@ const CreateListModal: React.FC<CreateListModalProps> = ({ visible, onCancel }) 
 export default CreateListModal
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    justifyContent: "center",
+  actions: {
+    flexDirection: "row",
+    gap: spacing.md,
+    paddingBottom: spacing.lg,
+    paddingHorizontal: spacing.lg,
+  },
+  cancelButton: {
     alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
+    borderRadius: radii.md,
+    flex: 1,
+    paddingVertical: spacing.md,
+  },
+  cancelText: {
+    fontSize: typography.button.fontSize,
+    fontWeight: "600",
+  },
+  content: {
+    paddingBottom: spacing.lg,
+    paddingHorizontal: spacing.lg,
+  },
+  createButton: {
+    alignItems: "center",
+    borderRadius: radii.md,
+    elevation: 3,
+    flex: 1,
+    flexDirection: "row",
+    gap: spacing.xs,
+    justifyContent: "center",
+    paddingVertical: spacing.md,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  createText: {
+    fontSize: typography.button.fontSize,
+    fontWeight: "600",
+  },
+  errorText: {
+    fontSize: fontSizes.bodySmall,
+    marginLeft: spacing.xs,
+    marginTop: spacing.xs,
+  },
+  header: {
+    alignItems: "center",
+    paddingBottom: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
+  },
+  iconContainer: {
+    alignItems: "center",
+    borderRadius: 32,
+    height: 64,
+    justifyContent: "center",
+    marginBottom: spacing.md,
+    width: 64,
+  },
+  input: {
+    borderRadius: radii.md,
+    borderWidth: 2,
+    fontSize: fontSizes.body,
+    fontWeight: "500",
+    padding: spacing.md,
+  },
+  keyboardView: {
+    flex: 1,
   },
   modal: {
     backgroundColor: "white",
     borderRadius: radii.lg,
-    width: "90%",
+    elevation: 10,
     maxWidth: 400,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.3,
     shadowRadius: 20,
-    elevation: 10,
+    width: "90%",
   },
-  header: {
+  overlay: {
     alignItems: "center",
-    paddingTop: spacing.xl,
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.md,
-  },
-  iconContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    flex: 1,
     justifyContent: "center",
-    alignItems: "center",
-    marginBottom: spacing.md,
+  },
+  subtitle: {
+    fontSize: fontSizes.body,
+    textAlign: "center",
   },
   title: {
     fontSize: 24,
     fontWeight: "700",
     marginBottom: spacing.xs,
     textAlign: "center",
-  },
-  subtitle: {
-    fontSize: fontSizes.body,
-    textAlign: "center",
-  },
-  content: {
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.lg,
-  },
-  input: {
-    borderWidth: 2,
-    borderRadius: radii.md,
-    padding: spacing.md,
-    fontSize: fontSizes.body,
-    fontWeight: "500",
-  },
-  actions: {
-    flexDirection: "row",
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.lg,
-    gap: spacing.md,
-  },
-  cancelButton: {
-    flex: 1,
-    paddingVertical: spacing.md,
-    borderRadius: radii.md,
-    alignItems: "center",
-  },
-  cancelText: {
-    fontSize: typography.button.fontSize,
-    fontWeight: "600",
-  },
-  createButton: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: spacing.md,
-    borderRadius: radii.md,
-    gap: spacing.xs,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  createText: {
-    fontSize: typography.button.fontSize,
-    fontWeight: "600",
   },
 });

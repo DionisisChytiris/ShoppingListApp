@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Modal,
   View,
@@ -10,13 +10,17 @@ import {
   Platform,
   Pressable,
   ScrollView,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { colors, spacing, radii, typography } from "../lib/theme";
-import { useTheme } from "../lib/themeContext";
-import PhotoPicker from "../components/PhotoPicker";
-import { Item } from "../types";
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { colors, spacing, radii, typography } from '../lib/theme';
+import { useTheme } from '../lib/themeContext';
+import PhotoPicker from '../components/PhotoPicker';
+import { Item } from '../types';
+import { itemInputSchema, validateForm, getFieldError } from '../lib/validation';
+import { CATEGORIES, CATEGORY_LABELS, CATEGORY_ICONS, type ItemCategory } from '../lib/categories';
+
+/* eslint-disable react-native/no-inline-styles */
 
 interface AddItemModalProps {
   visible: boolean;
@@ -25,87 +29,118 @@ interface AddItemModalProps {
   editingItem?: Item | null;
 }
 
-export default function AddItemModal({
-  visible,
-  onClose,
-  onSave,
-  editingItem,
-}: AddItemModalProps) {
+export default function AddItemModal({ visible, onClose, onSave, editingItem }: AddItemModalProps) {
   const { theme } = useTheme();
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [price, setPrice] = useState('');
   const [photo, setPhoto] = useState<string | null>(null);
+  const [category, setCategory] = useState<ItemCategory | undefined>(undefined);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (editingItem) {
       setName(editingItem.name);
-      setDescription(editingItem.description ?? "");
-      setPrice(editingItem.price ? String(editingItem.price) : "");
+      setDescription(editingItem.description ?? '');
+      setPrice(editingItem.price ? String(editingItem.price) : '');
       setPhoto(editingItem.photoUri ?? null);
+      setCategory(editingItem.category);
     } else {
-      setName("");
-      setDescription("");
-      setPrice("");
+      setName('');
+      setDescription('');
+      setPrice('');
       setPhoto(null);
+      setCategory(undefined);
     }
+    // Clear errors when modal opens/closes or editing item changes
+    setErrors({});
   }, [editingItem, visible]);
 
   const handleSave = () => {
-    if (!name.trim()) return;
-
-    const itemData = {
-      name: name.trim(),
-      description: description.trim() || undefined,
-      price: price ? Number(price) : undefined,
+    // Prepare data for validation
+    const formData = {
+      name,
+      category: category,
+      description: description || undefined,
+      price: price || undefined,
       photoUri: photo,
       quantity: editingItem?.quantity ?? 1,
       checked: editingItem?.checked ?? false,
     };
 
-    onSave(itemData);
+    // Validate with Zod
+    const validation = validateForm(itemInputSchema, formData);
+
+    if (!validation.success) {
+      setErrors(validation.errors);
+      return;
+    }
+
+    // Clear errors and transform data
+    setErrors({});
+    const transformedData = {
+      name: validation.data.name,
+      category: validation.data.category,
+      description: validation.data.description || undefined,
+      price:
+        validation.data.price && validation.data.price.trim() !== ''
+          ? (() => {
+              const num = parseFloat(validation.data.price);
+              return isNaN(num) ? undefined : num;
+            })()
+          : undefined,
+      photoUri: validation.data.photoUri,
+      quantity: validation.data.quantity ?? 1,
+      checked: validation.data.checked ?? false,
+    };
+    onSave(transformedData);
     handleClose();
   };
 
   const handleClose = () => {
-    setName("");
-    setDescription("");
-    setPrice("");
+    setName('');
+    setDescription('');
+    setPrice('');
     setPhoto(null);
+    setCategory(undefined);
+    setErrors({});
     onClose();
   };
 
   const handleReset = () => {
-    setName("");
-    setDescription("");
-    setPrice("");
+    setName('');
+    setDescription('');
+    setPrice('');
     setPhoto(null);
+    setCategory(undefined);
+    setErrors({});
   };
 
   return (
-    <Modal
-      transparent
-      visible={visible}
-      animationType="slide"
-      onRequestClose={handleClose}
-    >
+    <Modal transparent visible={visible} animationType="slide" onRequestClose={handleClose}>
       <Pressable style={styles.overlay} onPress={handleClose}>
         <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           keyboardVerticalOffset={0}
         >
-          <View
-            style={[
-              styles.modalContent,
-              { backgroundColor: theme.colors.surface },
-            ]}
-          >
+          <View style={[styles.modalContent, { backgroundColor: theme.colors.surface }]}>
             <SafeAreaView edges={['bottom']} style={styles.safeArea}>
               {/* Handle bar */}
               <View style={[styles.handleBar, { backgroundColor: theme.colors.outline }]} />
+              {/* <View style={[styles.handleBar, { backgroundColor: theme.colors.outline }]} > */}
+              {editingItem && (
+                <View style={styles.editingBadge}>
+                  {/* <View style={[styles.editingBadge, { backgroundColor: theme.colors.primaryLight }]}> */}
+                  <Ionicons name="create-outline" size={16} color={theme.colors.primary} />
+                  <Text style={[styles.editingText, { color: theme.colors.primary }]}>
+                    Editing item
+                  </Text>
+                </View>
+              )}
+              {/* </View> */}
 
               {/* Header */}
-              <View style={styles.header}>
+              {/* <View style={styles.header}>
                 {editingItem && (
                   <View style={[styles.editingBadge, { backgroundColor: theme.colors.primaryLight }]}>
                     <Ionicons name="create-outline" size={16} color={theme.colors.primary} />
@@ -121,6 +156,70 @@ export default function AddItemModal({
                 >
                   <Ionicons name="close" size={20} color={theme.colors.onSurface} />
                 </TouchableOpacity>
+              </View> */}
+
+              {/* Category Selection - Scrollable Row */}
+              <View style={styles.categorySection}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.categoryScrollContent}
+                >
+                  {CATEGORIES.map((cat) => (
+                    <TouchableOpacity
+                      key={cat}
+                      onPress={() => {
+                        setCategory(cat);
+                        // Clear error when user selects a category
+                        if (errors.category) {
+                          setErrors((prev) => {
+                            const newErrors = { ...prev };
+                            delete newErrors.category;
+                            return newErrors;
+                          });
+                        }
+                      }}
+                      style={[
+                        styles.categoryChip,
+                        {
+                          backgroundColor:
+                            category === cat ? theme.colors.primary : theme.colors.surfaceVariant,
+                          borderColor:
+                            getFieldError(errors, 'category') && !category
+                              ? theme.colors.error || '#FF5252'
+                              : 'transparent',
+                          borderWidth: getFieldError(errors, 'category') && !category ? 1 : 0,
+                        },
+                      ]}
+                      activeOpacity={0.7}
+                    >
+                      <Ionicons
+                        name={CATEGORY_ICONS[cat] as keyof typeof Ionicons.glyphMap}
+                        size={16}
+                        color={category === cat ? colors.onPrimary : theme.colors.onSurfaceVariant}
+                        style={styles.categoryIcon}
+                      />
+                      <Text
+                        style={[
+                          styles.categoryChipText,
+                          {
+                            color:
+                              category === cat ? colors.onPrimary : theme.colors.onSurfaceVariant,
+                          },
+                        ]}
+                      >
+                        {CATEGORY_LABELS[cat]}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+                {getFieldError(errors, 'category') && (
+                  <Text
+                    style={[styles.categoryErrorText, { color: theme.colors.error || '#FF5252' }]}
+                  >
+                    {getFieldError(errors, 'category')}
+                  </Text>
+                )}
               </View>
 
               {/* Content */}
@@ -133,59 +232,147 @@ export default function AddItemModal({
               >
                 <View style={styles.inputSection}>
                   <View style={styles.inputRow}>
-                    <View style={[styles.inputWrapper, { backgroundColor: theme.colors.surfaceVariant }]}>
-                      <Ionicons
-                        name="pricetag-outline"
-                        size={18}
-                        color={theme.colors.onSurfaceVariant}
-                        style={styles.inputIcon}
-                      />
-                      <TextInput
-                        placeholder="Item name"
-                        placeholderTextColor={theme.colors.onSurfaceVariant}
-                        value={name}
-                        onChangeText={setName}
-                        style={[styles.input, { color: theme.colors.onSurface }]}
-                        autoFocus={!editingItem}
-                        returnKeyType="next"
-                      />
+                    <View style={{ flex: 1 }}>
+                      <View
+                        style={[
+                          styles.inputWrapper,
+                          {
+                            backgroundColor: theme.colors.surfaceVariant,
+                            borderColor: getFieldError(errors, 'name')
+                              ? theme.colors.error || '#FF5252'
+                              : 'transparent',
+                            borderWidth: getFieldError(errors, 'name') ? 1 : 0,
+                          },
+                        ]}
+                      >
+                        <Ionicons
+                          name="pricetag-outline"
+                          size={18}
+                          color={theme.colors.onSurfaceVariant}
+                          style={styles.inputIcon}
+                        />
+                        <TextInput
+                          placeholder="Item name"
+                          placeholderTextColor={theme.colors.onSurfaceVariant}
+                          value={name}
+                          onChangeText={(text) => {
+                            setName(text);
+                            // Clear error when user starts typing
+                            if (errors.name) {
+                              setErrors((prev) => {
+                                const newErrors = { ...prev };
+                                delete newErrors.name;
+                                return newErrors;
+                              });
+                            }
+                          }}
+                          style={[styles.input, { color: theme.colors.onSurface }]}
+                          autoFocus={!editingItem}
+                          returnKeyType="next"
+                        />
+                      </View>
+                      {getFieldError(errors, 'name') && (
+                        <Text
+                          style={[styles.errorText, { color: theme.colors.error || '#FF5252' }]}
+                        >
+                          {getFieldError(errors, 'name')}
+                        </Text>
+                      )}
                     </View>
-                    <View style={[styles.priceInputWrapper, { backgroundColor: theme.colors.surfaceVariant }]}>
-                      <Ionicons
-                        name="cash-outline"
-                        size={18}
-                        color={theme.colors.onSurfaceVariant}
-                        style={styles.inputIcon}
-                      />
-                      <TextInput
-                        placeholder="0.00"
-                        placeholderTextColor={theme.colors.onSurfaceVariant}
-                        keyboardType="decimal-pad"
-                        value={price}
-                        onChangeText={setPrice}
-                        style={[styles.priceInput, { color: theme.colors.onSurface }]}
-                        returnKeyType="next"
-                      />
+                    <View style={{ width: 120 }}>
+                      <View
+                        style={[
+                          styles.priceInputWrapper,
+                          {
+                            backgroundColor: theme.colors.surfaceVariant,
+                            borderColor: getFieldError(errors, 'price')
+                              ? theme.colors.error || '#FF5252'
+                              : 'transparent',
+                            borderWidth: getFieldError(errors, 'price') ? 1 : 0,
+                          },
+                        ]}
+                      >
+                        <Ionicons
+                          name="cash-outline"
+                          size={18}
+                          color={theme.colors.onSurfaceVariant}
+                          style={styles.inputIcon}
+                        />
+                        <TextInput
+                          placeholder="0.00"
+                          placeholderTextColor={theme.colors.onSurfaceVariant}
+                          keyboardType="decimal-pad"
+                          value={price}
+                          onChangeText={(text) => {
+                            setPrice(text);
+                            // Clear error when user starts typing
+                            if (errors.price) {
+                              setErrors((prev) => {
+                                const newErrors = { ...prev };
+                                delete newErrors.price;
+                                return newErrors;
+                              });
+                            }
+                          }}
+                          style={[styles.priceInput, { color: theme.colors.onSurface }]}
+                          returnKeyType="next"
+                        />
+                      </View>
+                      {getFieldError(errors, 'price') && (
+                        <Text
+                          style={[styles.errorText, { color: theme.colors.error || '#FF5252' }]}
+                        >
+                          {getFieldError(errors, 'price')}
+                        </Text>
+                      )}
                     </View>
                   </View>
 
-                  <View style={[styles.descriptionWrapper, { backgroundColor: theme.colors.surfaceVariant }]}>
-                    <Ionicons
-                      name="document-text-outline"
-                      size={18}
-                      color={theme.colors.onSurfaceVariant}
-                      style={styles.inputIcon}
-                    />
-                    <TextInput
-                      placeholder="Description (optional)"
-                      placeholderTextColor={theme.colors.onSurfaceVariant}
-                      value={description}
-                      onChangeText={setDescription}
-                      multiline
-                      numberOfLines={2}
-                      style={[styles.descriptionInput, { color: theme.colors.onSurface }]}
-                      textAlignVertical="top"
-                    />
+                  <View>
+                    <View
+                      style={[
+                        styles.descriptionWrapper,
+                        {
+                          backgroundColor: theme.colors.surfaceVariant,
+                          borderColor: getFieldError(errors, 'description')
+                            ? theme.colors.error || '#FF5252'
+                            : 'transparent',
+                          borderWidth: getFieldError(errors, 'description') ? 1 : 0,
+                        },
+                      ]}
+                    >
+                      <Ionicons
+                        name="document-text-outline"
+                        size={18}
+                        color={theme.colors.onSurfaceVariant}
+                        style={styles.inputIcon}
+                      />
+                      <TextInput
+                        placeholder="Description (optional)"
+                        placeholderTextColor={theme.colors.onSurfaceVariant}
+                        value={description}
+                        onChangeText={(text) => {
+                          setDescription(text);
+                          // Clear error when user starts typing
+                          if (errors.description) {
+                            setErrors((prev) => {
+                              const newErrors = { ...prev };
+                              delete newErrors.description;
+                              return newErrors;
+                            });
+                          }
+                        }}
+                        multiline
+                        numberOfLines={2}
+                        style={[styles.descriptionInput, { color: theme.colors.onSurface }]}
+                        textAlignVertical="top"
+                      />
+                    </View>
+                    {getFieldError(errors, 'description') && (
+                      <Text style={[styles.errorText, { color: theme.colors.error || '#FF5252' }]}>
+                        {getFieldError(errors, 'description')}
+                      </Text>
+                    )}
                   </View>
 
                   <PhotoPicker uri={photo ?? undefined} onChange={setPhoto} theme={theme} />
@@ -206,8 +393,14 @@ export default function AddItemModal({
                     ]}
                     activeOpacity={0.7}
                   >
-                    <Ionicons name="refresh-outline" size={18} color={theme.colors.onSurfaceVariant} />
-                    <Text style={[styles.cancelButtonText, { color: theme.colors.onSurfaceVariant }]}>
+                    <Ionicons
+                      name="refresh-outline"
+                      size={18}
+                      color={theme.colors.onSurfaceVariant}
+                    />
+                    <Text
+                      style={[styles.cancelButtonText, { color: theme.colors.onSurfaceVariant }]}
+                    >
                       New
                     </Text>
                   </TouchableOpacity>
@@ -217,25 +410,35 @@ export default function AddItemModal({
                   style={[
                     styles.saveButton,
                     {
-                      backgroundColor: name.trim() ? theme.colors.primary : theme.colors.surfaceVariant,
-                      opacity: name.trim() ? 1 : 0.5,
+                      backgroundColor:
+                        name.trim() && category
+                          ? theme.colors.primary
+                          : theme.colors.surfaceVariant,
+                      opacity: name.trim() && category ? 1 : 0.5,
                     },
                   ]}
                   activeOpacity={0.8}
-                  disabled={!name.trim()}
+                  disabled={!name.trim() || !category}
                 >
                   <MaterialIcons
-                    name={editingItem ? "check-circle" : "add-circle"}
+                    name={editingItem ? 'check-circle' : 'add-circle'}
                     size={20}
-                    color={name.trim() ? colors.onPrimary : theme.colors.onSurfaceVariant}
+                    color={
+                      name.trim() && category ? colors.onPrimary : theme.colors.onSurfaceVariant
+                    }
                   />
                   <Text
                     style={[
                       styles.saveButtonText,
-                      { color: name.trim() ? colors.onPrimary : theme.colors.onSurfaceVariant },
+                      {
+                        color:
+                          name.trim() && category
+                            ? colors.onPrimary
+                            : theme.colors.onSurfaceVariant,
+                      },
                     ]}
                   >
-                    {editingItem ? "Save Item" : "Add Item"}
+                    {editingItem ? 'Save Item' : 'Add Item'}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -248,159 +451,181 @@ export default function AddItemModal({
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: "transparent",
-    justifyContent: "flex-end",
-  },
-  modalContent: {
-    borderTopLeftRadius: 60,
-    borderTopRightRadius: 60,
-    maxHeight: "90%",
-    minHeight: 400,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 25,
-    elevation: 20,
-  },
-  safeArea: {
-    flex: 1,
-  },
-  handleBar: {
-    width: 40,
-    height: 4,
-    borderRadius: 2,
-    alignSelf: "center",
-    marginTop: spacing.sm,
-    marginBottom: spacing.xs,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+  actionsRow: {
+    alignItems: 'center',
+    borderTopWidth: 1,
+    flexDirection: 'row',
+    gap: spacing.sm,
+    justifyContent: 'flex-end',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
-    minHeight: 60,
+  },
+  cancelButton: {
+    alignItems: 'center',
+    borderRadius: radii.md,
+    borderWidth: 1,
+    flexDirection: 'row',
+    gap: spacing.xs,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  cancelButtonText: {
+    fontSize: typography.bodySmall.fontSize,
+    fontWeight: typography.button.fontWeight as 600,
+  },
+  categoryChip: {
+    alignItems: 'center',
+    borderRadius: 9999,
+    flexDirection: 'row',
+    gap: spacing.xs,
+    marginRight: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  categoryChipText: {
+    fontSize: typography.bodySmall.fontSize,
+    fontWeight: typography.label.fontWeight as 500,
+  },
+  categoryErrorText: {
+    fontSize: typography.bodySmall.fontSize,
+    marginLeft: spacing.xs,
+    marginTop: spacing.xs,
+  },
+  categoryIcon: {
+    marginRight: 0,
+  },
+  categoryScrollContent: {
+    gap: spacing.sm,
+    paddingRight: spacing.lg,
+  },
+  categorySection: {
+    borderBottomColor: colors.outline,
+    borderBottomWidth: 1,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  descriptionInput: {
+    flex: 1,
+    fontSize: typography.bodySmall.fontSize,
+    minHeight: 40,
+    paddingVertical: spacing.xs,
+    textAlignVertical: 'top',
+  },
+  descriptionWrapper: {
+    alignItems: 'flex-start',
+    borderRadius: radii.md,
+    flexDirection: 'row',
+    minHeight: 52,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
   editingBadge: {
-    flexDirection: "row",
-    alignItems: "center",
+    alignItems: 'center',
+    borderRadius: radii.md,
+    flexDirection: 'row',
+    gap: spacing.xs,
+    justifyContent: 'center',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
-    borderRadius: radii.md,
-    gap: spacing.xs,
   },
   editingText: {
     fontSize: typography.label.fontSize,
-    fontWeight: typography.label.fontWeight as "500",
+    fontWeight: typography.label.fontWeight as 500,
   },
-  closeButton: {
-    width: 36,
-    height: 36,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: radii.sm,
+  errorText: {
+    fontSize: typography.bodySmall.fontSize,
+    marginLeft: spacing.md,
+    marginTop: spacing.xs,
   },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.md,
-  },
-  inputSection: {
-    gap: spacing.md,
-  },
-  inputRow: {
-    flexDirection: "row",
-    gap: spacing.sm,
-  },
-  inputWrapper: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: spacing.md,
-    borderRadius: radii.md,
-    minHeight: 52,
-  },
-  priceInputWrapper: {
-    width: 120,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: spacing.md,
-    borderRadius: radii.md,
-    minHeight: 52,
-  },
-  inputIcon: {
-    marginRight: spacing.xs,
+  handleBar: {
+    alignSelf: 'center',
+    borderRadius: 2,
+    height: 4,
+    marginBottom: spacing.xs,
+    marginTop: spacing.sm,
+    width: 40,
   },
   input: {
     flex: 1,
     fontSize: typography.body.fontSize,
     paddingVertical: spacing.sm,
   },
+  inputIcon: {
+    marginRight: spacing.xs,
+  },
+  
+  inputRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  inputSection: {
+    gap: spacing.md,
+  },
+  inputWrapper: {
+    alignItems: 'center',
+    borderRadius: radii.md,
+    flex: 1,
+    flexDirection: 'row',
+    minHeight: 52,
+    paddingHorizontal: spacing.md,
+  },
+  modalContent: {
+    borderTopLeftRadius: 60,
+    borderTopRightRadius: 60,
+    elevation: 20,
+    maxHeight: '90%',
+    minHeight: 500,
+    shadowColor: '#000',
+    shadowOffset: { width: 2, height: -4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 25,
+  },
+  overlay: {
+    backgroundColor: 'transparent',
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
   priceInput: {
     flex: 1,
     fontSize: typography.body.fontSize,
     paddingVertical: spacing.sm,
   },
-  descriptionWrapper: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+  priceInputWrapper: {
+    alignItems: 'center',
     borderRadius: radii.md,
+    flexDirection: 'row',
     minHeight: 52,
-  },
-  descriptionInput: {
-    flex: 1,
-    fontSize: typography.bodySmall.fontSize,
-    paddingVertical: spacing.xs,
-    minHeight: 40,
-    textAlignVertical: "top",
-  },
-  actionsRow: {
-    flexDirection: "row",
-    gap: spacing.sm,
-    alignItems: "center",
-    justifyContent: "flex-end",
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderTopWidth: 1,
-  },
-  cancelButton: {
-    flexDirection: "row",
-    alignItems: "center",
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    gap: spacing.xs,
+    width: 120,
   },
-  cancelButtonText: {
-    fontSize: typography.bodySmall.fontSize,
-    fontWeight: typography.button.fontWeight as "600",
+  safeArea: {
+    flex: 1,
   },
   saveButton: {
-    flexDirection: "row",
-    alignItems: "center",
+    alignItems: 'center',
+    borderRadius: radii.md,
+    elevation: 4,
+    flexDirection: 'row',
+    gap: spacing.xs,
+    justifyContent: 'center',
+    minWidth: 120,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
-    borderRadius: radii.md,
-    gap: spacing.xs,
-    minWidth: 120,
-    justifyContent: "center",
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
-    elevation: 4,
   },
   saveButtonText: {
     fontSize: typography.button.fontSize,
-    fontWeight: typography.button.fontWeight as "600",
+    fontWeight: typography.button.fontWeight as 600,
+  },
+  scrollContent: {
+    paddingBottom: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+  },
+  scrollView: {
+    flex: 1,
   },
 });
-

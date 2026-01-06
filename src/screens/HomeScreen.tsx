@@ -1,58 +1,43 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, GestureResponderEvent } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppSelector, useAppDispatch } from '../hooks/index';
-import { toggleFavorite, deleteList } from '../../redux/listsSlice';
+import { toggleFavorite } from '../../redux/listsSlice';
 import { ShoppingList } from '../types/index';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { colors, spacing, radii, typography } from '../lib/theme';
 import { useTheme } from '../lib/themeContext';
-import { useNavigation } from '@react-navigation/native';
-import { Alert } from 'react-native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 import CreateListModal from '../modals/CreateNesList';
 import { formatShortDateTime } from '../lib/dateUtils';
 import { useTranslation } from '../hooks/useTranslation';
+
+type RootStackParamList = {
+  ListEditor: { listId: string };
+  Settings: undefined;
+};
 
 export default function HomeScreen() {
   const { t } = useTranslation();
   const lists = useAppSelector((s) => s.lists.lists);
   const dispatch = useAppDispatch();
   const { theme } = useTheme();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [modalVisible, setModalVisible] = useState(false);
 
   // Get sorted lists
   const sortedLists = [...lists].sort((a, b) => b.createdAt - a.createdAt);
-  const favoriteLists = sortedLists.filter(list => list.isFavorite);
+  const favoriteLists = sortedLists.filter((list) => list.isFavorite);
   const recentList = sortedLists[0] || null;
-  const otherLists = sortedLists.filter(list =>
-    !list.isFavorite && list.id !== recentList?.id
-  );
+  const otherLists = sortedLists.filter((list) => !list.isFavorite && list.id !== recentList?.id);
 
-  const onDelete = (id: string) => {
-    Alert.alert(t('listEditor.deleteList'), t('listEditor.areYouSure'), [
-      { text: t('common.cancel'), style: "cancel" },
-      {
-        text: t('common.delete'),
-        style: "destructive",
-        onPress: () => dispatch(deleteList({ id })),
-      },
-    ]);
-  };
-
-  const onToggleFavorite = (id: string, e: any) => {
+  const onToggleFavorite = (id: string, e: GestureResponderEvent) => {
     e.stopPropagation();
     dispatch(toggleFavorite({ id }));
   };
 
   const renderListCard = (item: ShoppingList, showActions: boolean = true) => {
-    const checkedCount = item.items.filter(i => i.checked).length;
+    const checkedCount = item.items.filter((i) => i.checked).length;
     const totalItems = item.items.length;
     const progress = totalItems > 0 ? checkedCount / totalItems : 0;
 
@@ -60,7 +45,7 @@ export default function HomeScreen() {
       <TouchableOpacity
         key={item.id}
         style={[styles.card, { backgroundColor: theme.colors.surface }]}
-        onPress={() => (navigation as any).navigate('ListEditor', { listId: item.id })}
+        // onPress={() => (navigation as any).navigate('ListEditor', { listId: item.id })}
         activeOpacity={0.7}
       >
         <View style={styles.cardContent}>
@@ -73,9 +58,7 @@ export default function HomeScreen() {
                 {item.title}
               </Text>
               <Text style={[styles.cardMeta, { color: theme.colors.onSurfaceVariant }]}>
-                {totalItems === 0
-                  ? "No items yet"
-                  : `${checkedCount} of ${totalItems} items`}
+                {totalItems === 0 ? 'No items yet' : `${checkedCount} of ${totalItems} items`}
               </Text>
               <Text style={[styles.cardDate, { color: theme.colors.onSurfaceVariant }]}>
                 Created {formatShortDateTime(item.createdAt)}
@@ -89,8 +72,8 @@ export default function HomeScreen() {
                   styles.progressFill,
                   {
                     width: `${progress * 100}%`,
-                    backgroundColor: theme.colors.primary
-                  }
+                    backgroundColor: theme.colors.primary,
+                  },
                 ]}
               />
             </View>
@@ -104,7 +87,7 @@ export default function HomeScreen() {
               activeOpacity={0.7}
             >
               <Ionicons
-                name={item.isFavorite ? "star" : "star-outline"}
+                name={item.isFavorite ? 'star' : 'star-outline'}
                 size={18}
                 color={item.isFavorite ? colors.warning : theme.colors.onSurfaceVariant}
               />
@@ -123,9 +106,7 @@ export default function HomeScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View>
-          <Text style={[styles.appTitle, { color: theme.colors.onSurface }]}>
-            {t('app.title')}
-          </Text>
+          <Text style={[styles.appTitle, { color: theme.colors.onSurface }]}>{t('app.title')}</Text>
           <Text style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
             {lists.length} {lists.length === 1 ? t('app.list') : t('app.lists')}
           </Text>
@@ -133,7 +114,7 @@ export default function HomeScreen() {
         <View style={styles.headerButtons}>
           <TouchableOpacity
             style={[styles.iconButton, { backgroundColor: theme.colors.surface }]}
-            onPress={() => (navigation as any).navigate('Settings')}
+            onPress={() => navigation.navigate('Settings')}
             activeOpacity={0.7}
           >
             <Ionicons name="settings-outline" size={22} color={theme.colors.primary} />
@@ -146,7 +127,7 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
-          lists.length === 0 && styles.scrollContentEmpty
+          lists.length === 0 && styles.scrollContentEmpty,
         ]}
       >
         {/* Most Recent List */}
@@ -171,7 +152,7 @@ export default function HomeScreen() {
                 {t('home.favorites')} ({favoriteLists.length})
               </Text>
             </View>
-            {favoriteLists.slice(0, 3).map(list => renderListCard(list))}
+            {favoriteLists.slice(0, 3).map((list) => renderListCard(list))}
           </View>
         )}
 
@@ -184,14 +165,16 @@ export default function HomeScreen() {
                 {t('home.allLists')} ({otherLists.length})
               </Text>
             </View>
-            {otherLists.slice(0, 5).map(list => renderListCard(list))}
+            {otherLists.slice(0, 5).map((list) => renderListCard(list))}
           </View>
         )}
 
         {/* Empty State */}
         {lists.length === 0 && (
           <View style={styles.emptyState}>
-            <View style={[styles.emptyIconContainer, { backgroundColor: theme.colors.surfaceVariant }]}>
+            <View
+              style={[styles.emptyIconContainer, { backgroundColor: theme.colors.surfaceVariant }]}
+            >
               <Ionicons name="list-outline" size={48} color={theme.colors.onSurfaceVariant} />
             </View>
             <Text style={[styles.emptyTitle, { color: theme.colors.onSurface }]}>
@@ -214,98 +197,66 @@ export default function HomeScreen() {
         )}
       </ScrollView>
 
-      <CreateListModal
-        visible={modalVisible}
-        onCancel={() => setModalVisible(false)}
-      />
+      <CreateListModal visible={modalVisible} onCancel={() => setModalVisible(false)} />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  actionButton: {
     alignItems: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.sm,
+    borderRadius: radii.sm,
+    height: 32,
+    justifyContent: 'center',
+    width: 32,
   },
   appTitle: {
     fontSize: 28,
     fontWeight: '700',
     letterSpacing: -0.5,
   },
-  subtitle: {
-    fontSize: 14,
-    marginTop: 4,
-    fontWeight: '500',
-  },
-  headerButtons: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  iconButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: radii.md,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xl,
-  },
-  scrollContentEmpty: {
-    flexGrow: 1,
-  },
-  section: {
-    marginTop: spacing.xl,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginBottom: spacing.md,
-  },
-  sectionTitle: {
-    fontSize: typography.heading3.fontSize,
-    fontWeight: '600',
-  },
   card: {
+    alignItems: 'center',
     backgroundColor: colors.surface,
     borderRadius: radii.md,
-    padding: spacing.md,
-    marginBottom: spacing.md,
+    elevation: 3,
     flexDirection: 'row',
-    alignItems: 'center',
+    marginBottom: spacing.md,
+    padding: spacing.md,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
-    elevation: 3,
+  },
+  cardActions: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginLeft: spacing.sm,
   },
   cardContent: {
     flex: 1,
   },
+  cardDate: {
+    fontSize: 11,
+    marginTop: 4,
+    opacity: 0.7,
+  },
   cardHeader: {
-    flexDirection: 'row',
     alignItems: 'center',
+    flexDirection: 'row',
     marginBottom: spacing.xs,
   },
   cardIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: radii.sm,
-    justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: radii.sm,
+    height: 36,
+    justifyContent: 'center',
     marginRight: spacing.sm,
+    width: 36,
+  },
+  cardMeta: {
+    fontSize: 12,
+    marginTop: 2,
   },
   cardTextContainer: {
     flex: 1,
@@ -315,84 +266,113 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 2,
   },
-  cardMeta: {
-    fontSize: 12,
-    marginTop: 2,
+  container: {
+    flex: 1,
   },
-  cardDate: {
-    fontSize: 11,
-    marginTop: 4,
-    opacity: 0.7,
-  },
-  progressBar: {
-    height: 3,
-    borderRadius: 2,
-    overflow: 'hidden',
-    marginTop: spacing.xs,
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 2,
-  },
-  cardActions: {
-    flexDirection: 'row',
+  emptyButton: {
     alignItems: 'center',
-    marginLeft: spacing.sm,
-  },
-  actionButton: {
-    width: 32,
-    height: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: radii.sm,
-  },
-  viewAllButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.md,
     borderRadius: radii.md,
-    marginTop: spacing.xs,
+    flexDirection: 'row',
     gap: spacing.xs,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
   },
-  viewAllText: {
-    fontSize: typography.bodySmall.fontSize,
+  emptyButtonText: {
+    fontSize: typography.button.fontSize,
     fontWeight: '600',
   },
-  emptyState: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: 600
+  emptyDescription: {
+    fontSize: typography.body.fontSize,
+    marginBottom: spacing.lg,
+    paddingHorizontal: spacing.xl,
+    textAlign: 'center',
   },
   emptyIconContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 50,
+    height: 100,
+    justifyContent: 'center',
     marginBottom: spacing.lg,
+    width: 100,
+  },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 600,
   },
   emptyTitle: {
     fontSize: 20,
     fontWeight: '600',
     marginBottom: spacing.xs,
   },
-  emptyDescription: {
-    fontSize: typography.body.fontSize,
-    textAlign: 'center',
-    marginBottom: spacing.lg,
-    paddingHorizontal: spacing.xl,
-  },
-  emptyButton: {
-    flexDirection: 'row',
+  header: {
     alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingBottom: spacing.sm,
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderRadius: radii.md,
-    gap: spacing.xs,
+    paddingTop: spacing.md,
   },
-  emptyButtonText: {
-    fontSize: typography.button.fontSize,
+  headerButtons: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  iconButton: {
+    alignItems: 'center',
+    borderRadius: radii.md,
+    height: 40,
+    justifyContent: 'center',
+    width: 40,
+  },
+  progressBar: {
+    borderRadius: 2,
+    height: 3,
+    marginTop: spacing.xs,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    borderRadius: 2,
+    height: '100%',
+  },
+  scrollContent: {
+    paddingBottom: spacing.xl,
+    paddingHorizontal: spacing.lg,
+  },
+  scrollContentEmpty: {
+    flexGrow: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  section: {
+    marginTop: spacing.xl,
+  },
+  sectionHeader: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  sectionTitle: {
+    fontSize: typography.heading3.fontSize,
     fontWeight: '600',
   },
+  subtitle: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginTop: 4,
+  },
+  // viewAllButton: {
+  //   flexDirection: 'row',
+  //   alignItems: 'center',
+  //   justifyContent: 'center',
+  //   paddingVertical: spacing.md,
+  //   borderRadius: radii.md,
+  //   marginTop: spacing.xs,
+  //   gap: spacing.xs,
+  // },
+  // viewAllText: {
+  //   fontSize: typography.bodySmall.fontSize,
+  //   fontWeight: '600',
+  // },
 });

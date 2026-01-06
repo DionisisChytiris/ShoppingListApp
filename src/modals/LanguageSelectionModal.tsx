@@ -20,6 +20,8 @@ interface LanguageSelectionModalProps {
   onSelectLanguage: (language: Language) => void;
 }
 
+/* eslint-disable react-native/no-inline-styles */
+
 const languageOptions: Array<{
   id: Language;
   name: string;
@@ -160,67 +162,43 @@ export default function LanguageSelectionModal({
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    width: '90%',
-    maxWidth: 400,
-    borderRadius: radii.lg,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 10,
-    overflow: 'hidden',
-  },
-  header: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-  },
-  headerContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: typography.heading3.fontSize,
-    fontWeight: '600' as const,
-    lineHeight: typography.heading3.lineHeight,
-  },
   closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 16,
+    height: 32,
+    justifyContent: 'center',
+    width: 32,
   },
   content: {
+    gap: spacing.md,
     padding: spacing.lg,
-    gap: spacing.md,
-  },
-  languageItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: spacing.md,
-    borderRadius: radii.md,
-    borderWidth: 1.5,
-  },
-  languageItemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    flex: 1,
   },
   flag: {
     fontSize: 28,
   },
-  languageText: {
+  header: {
+    borderBottomWidth: 1,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  headerContent: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  languageItem: {
+    alignItems: 'center',
+    borderRadius: radii.md,
+    borderWidth: 1.5,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: spacing.md,
+  },
+  languageItemLeft: {
+    alignItems: 'center',
+    flexDirection: 'row',
     flex: 1,
+    gap: spacing.md,
   },
   languageName: {
     fontSize: typography.body.fontSize,
@@ -229,12 +207,36 @@ const styles = StyleSheet.create({
   languageNativeName: {
     fontSize: typography.bodySmall.fontSize,
   },
-  selectedIndicator: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    justifyContent: 'center',
+  languageText: {
+    flex: 1,
+  },
+  modalContent: {
+    borderRadius: radii.lg,
+    elevation: 10,
+    maxWidth: 400,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    width: '90%',
+  },
+  overlay: {
     alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+  },
+  selectedIndicator: {
+    alignItems: 'center',
+    borderRadius: 12,
+    height: 24,
+    justifyContent: 'center',
+    width: 24,
+  },
+  title: {
+    fontSize: typography.heading3.fontSize,
+    fontWeight: '600' as const,
+    lineHeight: typography.heading3.lineHeight,
   },
 });
 

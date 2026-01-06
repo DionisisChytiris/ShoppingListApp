@@ -18,6 +18,8 @@ interface IntroScreenProps {
   onComplete: () => void;
 }
 
+/* eslint-disable react-native/no-inline-styles */
+
 const features = [
   {
     icon: 'list',
@@ -106,7 +108,7 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
                 ]}
               >
                 <Ionicons
-                  name={feature.icon as any}
+                  name={feature.icon as keyof typeof Ionicons.glyphMap}
                   size={64}
                   color={feature.color}
                 />
@@ -169,44 +171,87 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
 }
 
 const styles = StyleSheet.create({
+  button: {
+    alignItems: 'center',
+    borderRadius: radii.md,
+    elevation: 5,
+    flexDirection: 'row',
+    gap: spacing.xs,
+    justifyContent: 'center',
+    paddingVertical: spacing.md,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+  },
+  buttonIcon: {
+    marginLeft: spacing.xs,
+  },
+  buttonText: {
+    fontSize: 18,
+    fontWeight: '600' as const,
+    lineHeight: 24,
+  },
   container: {
     flex: 1,
   },
+  description: {
+    fontSize: typography.body.fontSize,
+    fontWeight: '400' as const,
+    lineHeight: 24,
+    paddingHorizontal: spacing.md,
+    textAlign: 'center',
+  },
+  dot: {
+    borderRadius: 4,
+    height: 8,
+  },
+  footer: {
+    paddingBottom: spacing.xl,
+    paddingHorizontal: spacing.lg,
+  },
+  iconCircle: {
+    alignItems: 'center',
+    borderRadius: 80,
+    height: 160,
+    justifyContent: 'center',
+    width: 160,
+  },
+  iconContainer: {
+    alignItems: 'center',
+    marginBottom: spacing.xl,
+  },
+  page: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.xl,
+  },
+  pagination: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: spacing.xs,
+    justifyContent: 'center',
+    paddingVertical: spacing.lg,
+  },
+  scrollContent: {
+    alignItems: 'center',
+  },
+  scrollView: {
+    flex: 1,
+  },
   skipButton: {
-    position: 'absolute',
-    top: spacing.lg,
-    right: spacing.lg,
-    zIndex: 10,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+    position: 'absolute',
+    right: spacing.lg,
+    top: spacing.lg,
+    zIndex: 10,
   },
   skipText: {
     fontSize: typography.body.fontSize,
     fontWeight: '600',
     paddingTop: spacing.xxl
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    alignItems: 'center',
-  },
-  page: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: spacing.xl,
-  },
-  iconContainer: {
-    marginBottom: spacing.xl,
-    alignItems: 'center',
-  },
-  iconCircle: {
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   textContainer: {
     alignItems: 'center',
@@ -218,49 +263,6 @@ const styles = StyleSheet.create({
     lineHeight: typography.heading2.lineHeight,
     marginBottom: spacing.md,
     textAlign: 'center',
-  },
-  description: {
-    fontSize: typography.body.fontSize,
-    fontWeight: '400' as const,
-    lineHeight: 24,
-    textAlign: 'center',
-    paddingHorizontal: spacing.md,
-  },
-  pagination: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: spacing.xs,
-    paddingVertical: spacing.lg,
-  },
-  dot: {
-    height: 8,
-    borderRadius: 4,
-  },
-  footer: {
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xl,
-  },
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.md,
-    borderRadius: radii.md,
-    gap: spacing.xs,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  buttonText: {
-    fontSize: 18,
-    fontWeight: '600' as const,
-    lineHeight: 24,
-  },
-  buttonIcon: {
-    marginLeft: spacing.xs,
   },
 });
 

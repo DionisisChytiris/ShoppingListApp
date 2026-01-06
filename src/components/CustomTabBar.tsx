@@ -7,6 +7,8 @@ import { useTheme } from '../lib/themeContext';
 import { colors, spacing, typography } from '../lib/theme';
 import CreateListModal from '../modals/CreateNesList';
 
+/* eslint-disable react-native/no-inline-styles */
+
 export default function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const { theme } = useTheme();
   const [modalVisible, setModalVisible] = useState(false);
@@ -15,18 +17,24 @@ export default function CustomTabBar({ state, descriptors, navigation }: BottomT
   return (
     <>
       <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
-        <View style={[styles.tabBar, { 
-          backgroundColor: theme.colors.surface, 
-          borderTopColor: theme.colors.border,
-          paddingBottom: Math.max(insets.bottom, 0)
-        }]}>
+        <View
+          style={[
+            styles.tabBar,
+            {
+              backgroundColor: theme.colors.surface,
+              borderTopColor: theme.colors.border,
+              paddingBottom: Math.max(insets.bottom, 0),
+            },
+          ]}
+        >
           {state.routes.map((route, index) => {
             const { options } = descriptors[route.key];
-            const label = options.tabBarLabel !== undefined
-              ? options.tabBarLabel
-              : options.title !== undefined
-              ? options.title
-              : route.name;
+            const label =
+              options.tabBarLabel !== undefined
+                ? options.tabBarLabel
+                : options.title !== undefined
+                  ? options.title
+                  : route.name;
 
             const isFocused = state.index === index;
 
@@ -67,13 +75,13 @@ export default function CustomTabBar({ state, descriptors, navigation }: BottomT
 
             // Get icon from options
             const iconElement = options.tabBarIcon
-              ? (typeof options.tabBarIcon === 'function'
-                  ? options.tabBarIcon({ 
-                      focused: isFocused, 
-                      color: isFocused ? theme.colors.primary : theme.colors.onSurfaceVariant, 
-                      size: 24 
-                    })
-                  : null)
+              ? typeof options.tabBarIcon === 'function'
+                ? options.tabBarIcon({
+                    focused: isFocused,
+                    color: isFocused ? theme.colors.primary : theme.colors.onSurfaceVariant,
+                    size: 24,
+                  })
+                : null
               : null;
 
             return (
@@ -82,7 +90,6 @@ export default function CustomTabBar({ state, descriptors, navigation }: BottomT
                 accessibilityRole="button"
                 accessibilityState={isFocused ? { selected: true } : {}}
                 accessibilityLabel={options.tabBarAccessibilityLabel}
-                testID={options.tabBarTestID}
                 onPress={onPress}
                 onLongPress={onLongPress}
                 style={styles.tab}
@@ -105,64 +112,60 @@ export default function CustomTabBar({ state, descriptors, navigation }: BottomT
         </View>
       </View>
 
-      <CreateListModal
-        visible={modalVisible}
-        onCancel={() => setModalVisible(false)}
-      />
+      <CreateListModal visible={modalVisible} onCancel={() => setModalVisible(false)} />
     </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
     bottom: 0,
     left: 0,
+    position: 'absolute',
     right: 0,
-  },
-  tabBar: {
-    flexDirection: 'row',
-    minHeight: 70,
-    borderTopWidth: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  tab: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.xs,
   },
   label: {
     fontSize: typography.bodySmall.fontSize,
     marginTop: spacing.xs,
   },
-  labelText: {
-    fontWeight: '400',
-  },
-  labelTextBold: {
-    fontWeight: '600',
-  },
-  middleButtonContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   middleButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 28,
+    elevation: 8,
+    height: 56,
+    justifyContent: 'center',
     marginTop: -20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
-    elevation: 8,
+    width: 56,
   },
+  middleButtonContainer: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+  },
+  tab: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+    paddingVertical: spacing.xs,
+  },
+  tabBar: {
+    borderTopWidth: 1,
+    elevation: 8,
+    flexDirection: 'row',
+    minHeight: 70,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  },
+  // labelText: {
+  //   fontWeight: '400',
+  // },
+  // labelTextBold: {
+  //   fontWeight: '600',
+  // },
 });
-

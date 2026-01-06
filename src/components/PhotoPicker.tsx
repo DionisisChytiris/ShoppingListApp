@@ -4,61 +4,61 @@ import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, radii, typography } from '../lib/theme';
 
+type Theme = {
+  colors?: {
+    surfaceVariant?: string;
+    onSurface?: string;
+    onSurfaceVariant?: string;
+    primary?: string;
+  };
+};
+
 type Props = {
   uri?: string | null;
   onChange: (uri: string | null) => void;
-  theme?: any;
+  theme?: Theme;
 };
 
 export default function PhotoPicker({ uri, onChange, theme }: Props) {
-  const themeColors = theme?.colors || colors;
+  const themeColors = theme?.colors || (colors as typeof colors);
   async function pickImage() {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    const granted = (permission as any).granted ?? (permission as any).status === 'granted';
+    if (!permission.granted) {
+      Alert.alert('Permission required', 'Please allow photo library access to attach images.');
+      return;
+    }
+    const granted = permission.granted ?? permission.status === 'granted';
     if (!granted) {
       Alert.alert('Permission required', 'Please allow photo library access to attach images.');
       return;
     }
 
-    const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.6, base64: false });
+    const result = await ImagePicker.launchImageLibraryAsync({
+      quality: 0.6,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    });
 
-    // Handle modern API (canceled + assets) and legacy API (cancelled + uri)
-    let pickedUri: string | undefined;
-    if ('canceled' in result) {
-      if (result.canceled) return;
-      pickedUri = result.assets?.[0]?.uri;
-    } else if ('cancelled' in result) {
-      if ((result as any).cancelled) return;
-      pickedUri = (result as any).uri ?? (result as any).assets?.[0]?.uri;
-    } else {
-      pickedUri = (result as any).uri ?? (result as any).assets?.[0]?.uri;
-    }
+    if (result.canceled) return;
 
-    if (pickedUri) onChange(pickedUri);
+    onChange(result.assets[0].uri);
   }
 
   async function takePhoto() {
     const permission = await ImagePicker.requestCameraPermissionsAsync();
-    const granted = (permission as any).granted ?? (permission as any).status === 'granted';
+    const granted = permission.granted ?? permission.status === 'granted';
     if (!granted) {
       Alert.alert('Permission required', 'Please allow camera access to take photos.');
       return;
     }
 
-    const result = await ImagePicker.launchCameraAsync({ quality: 0.6 });
+    const result = await ImagePicker.launchCameraAsync({
+      quality: 0.6,
+      allowsEditing: false,
+    });
 
-    let pickedUri: string | undefined;
-    if ('canceled' in result) {
-      if (result.canceled) return;
-      pickedUri = result.assets?.[0]?.uri;
-    } else if ('cancelled' in result) {
-      if ((result as any).cancelled) return;
-      pickedUri = (result as any).uri ?? (result as any).assets?.[0]?.uri;
-    } else {
-      pickedUri = (result as any).uri ?? (result as any).assets?.[0]?.uri;
-    }
+    if (result.canceled) return;
 
-    if (pickedUri) onChange(pickedUri);
+    onChange(result.assets[0].uri);
   }
 
   return (
@@ -66,8 +66,8 @@ export default function PhotoPicker({ uri, onChange, theme }: Props) {
       <View style={styles.photoSection}>
         {uri ? (
           <View style={styles.previewContainer}>
-            <TouchableOpacity 
-              onPress={pickImage} 
+            <TouchableOpacity
+              onPress={pickImage}
               style={[styles.preview, { backgroundColor: themeColors.surfaceVariant }]}
               activeOpacity={0.8}
             >
@@ -85,50 +85,40 @@ export default function PhotoPicker({ uri, onChange, theme }: Props) {
             </TouchableOpacity>
           </View>
         ) : (
-          <TouchableOpacity 
-            onPress={pickImage} 
-            style={[styles.preview, styles.previewEmpty, { backgroundColor: themeColors.surfaceVariant }]}
+          <TouchableOpacity
+            onPress={pickImage}
+            style={[
+              styles.preview,
+              styles.previewEmpty,
+              { backgroundColor: themeColors.surfaceVariant },
+            ]}
             activeOpacity={0.7}
           >
             <View style={styles.placeholder}>
-              <Ionicons 
-                name="image-outline" 
-                size={32} 
-                color={themeColors.onSurfaceVariant} 
-              />
+              <Ionicons name="image-outline" size={32} color={themeColors.onSurfaceVariant} />
               <Text style={[styles.placeholderText, { color: themeColors.onSurfaceVariant }]}>
                 Add Photo
               </Text>
             </View>
           </TouchableOpacity>
         )}
-        
+
         <View style={styles.actions}>
-          <TouchableOpacity 
-            onPress={pickImage} 
-            style={[
-              styles.actionButton, 
-              { backgroundColor: themeColors.surfaceVariant }
-            ]}
+          <TouchableOpacity
+            onPress={pickImage}
+            style={[styles.actionButton, { backgroundColor: themeColors.surfaceVariant }]}
             activeOpacity={0.7}
           >
             <Ionicons name="images-outline" size={18} color={themeColors.primary} />
-            <Text style={[styles.actionText, { color: themeColors.primary }]}>
-              Gallery
-            </Text>
+            <Text style={[styles.actionText, { color: themeColors.primary }]}>Gallery</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
-            onPress={takePhoto} 
-            style={[
-              styles.actionButton,
-              { backgroundColor: themeColors.surfaceVariant }
-            ]}
+          <TouchableOpacity
+            onPress={takePhoto}
+            style={[styles.actionButton, { backgroundColor: themeColors.surfaceVariant }]}
             activeOpacity={0.7}
           >
             <Ionicons name="camera-outline" size={18} color={themeColors.primary} />
-            <Text style={[styles.actionText, { color: themeColors.primary }]}>
-              Camera
-            </Text>
+            <Text style={[styles.actionText, { color: themeColors.primary }]}>Camera</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -137,89 +127,89 @@ export default function PhotoPicker({ uri, onChange, theme }: Props) {
 }
 
 const styles = StyleSheet.create({
+  actionButton: {
+    alignItems: 'center',
+    borderRadius: radii.md,
+    flexDirection: 'row',
+    flex: 1,
+    gap: spacing.xs,
+    justifyContent: 'center',
+    minWidth: 0,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+  },
+  actionText: {
+    fontSize: typography.label.fontSize,
+    fontWeight: typography.button.fontWeight as 600,
+  },
+  actions: {
+    flexDirection: 'row',
+    flex: 1,
+    gap: spacing.sm,
+    minWidth: 0,
+  },
   container: {
     marginVertical: spacing.xs,
   },
-  photoSection: {
-    flexDirection: 'row',
+  image: {
+    height: '100%',
+    resizeMode: 'cover',
+    width: '100%',
+  },
+  imageOverlay: {
     alignItems: 'center',
-    gap: spacing.sm,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    bottom: 0,
+    justifyContent: 'center',
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+  },
+  photoSection: {
+    alignItems: 'center',
+    flexDirection: 'row',
     flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  placeholder: {
+    alignItems: 'center',
+    gap: spacing.xs,
+    justifyContent: 'center',
+  },
+  placeholderText: {
+    fontSize: typography.label.fontSize,
+    fontWeight: typography.label.fontWeight as 500,
+    textAlign: 'center',
+  },
+  preview: {
+    alignItems: 'center',
+    borderRadius: radii.md,
+    height: 80,
+    justifyContent: 'center',
+    overflow: 'hidden',
+    width: 80,
   },
   previewContainer: {
     position: 'relative',
   },
-  preview: {
-    width: 80,
-    height: 80,
-    borderRadius: radii.md,
-    overflow: 'hidden',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   previewEmpty: {
-    borderWidth: 2,
     borderStyle: 'dashed',
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-  },
-  imageOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderWidth: 2,
   },
   removeButton: {
-    position: 'absolute',
-    top: -8,
-    right: -8,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 14,
+    elevation: 5,
+    height: 28,
+    justifyContent: 'center',
+    position: 'absolute',
+    right: -8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 5,
-  },
-  placeholder: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  placeholderText: {
-    fontSize: typography.label.fontSize,
-    fontWeight: typography.label.fontWeight as '500',
-    textAlign: 'center',
-  },
-  actions: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    flex: 1,
-    minWidth: 0,
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.sm,
-    borderRadius: radii.md,
-    gap: spacing.xs,
-    flex: 1,
-    justifyContent: 'center',
-    minWidth: 0,
-  },
-  actionText: {
-    fontSize: typography.label.fontSize,
-    fontWeight: typography.button.fontWeight as '600',
+    top: -8,
+    width: 28,
   },
 });

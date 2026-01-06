@@ -26,18 +26,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
+    alignItems: 'center',
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
     padding: spacing.lg,
+  },
+  subtitle: {
+    fontSize: typography.body.fontSize,
   },
   title: {
     fontSize: typography.heading1.fontSize,
     fontWeight: '700',
     marginBottom: spacing.md,
-  },
-  subtitle: {
-    fontSize: typography.body.fontSize,
   },
 });
 

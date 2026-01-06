@@ -20,6 +20,8 @@ interface ThemeSelectionModalProps {
   onSelectTheme: (theme: ThemeVariant) => void;
 }
 
+/* eslint-disable react-native/no-inline-styles */
+
 const themeOptions = [
   {
     id: 'light' as ThemeVariant,
@@ -190,7 +192,7 @@ export default function ThemeSelectionModal({
                       {/* Icon */}
                       <View style={[styles.iconContainer, { backgroundColor: `${option.accentColor}30` }]}>
                         <Ionicons
-                          name={option.icon as any}
+                          name={option.icon as keyof typeof Ionicons.glyphMap}
                           size={20}
                           color={option.id === 'light' ? '#0B84FF' : option.accentColor}
                         />
@@ -221,142 +223,142 @@ export default function ThemeSelectionModal({
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    justifyContent: 'center',
+  centerContainer: {
     alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 300,
+  },
+  closeButton: {
+    alignItems: 'center',
+    borderRadius: 16,
+    height: 32,
+    justifyContent: 'center',
+    width: 32,
+  },
+  colorBase: {
+    bottom: 0,
+    height: '50%',
+    left: 0,
+    position: 'absolute',
+    right: 0,
+  },
+  colorCircle: {
+    alignItems: 'center',
+    borderRadius: 32.5,
+    height: 65,
+    justifyContent: 'center',
+    overflow: 'hidden',
+    position: 'relative',
+    width: 65,
+  },
+  colorGradient: {
+    height: '50%',
+    left: 0,
+    opacity: 0.6,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+  },
+  content: {
+    alignItems: 'center',
+    flexGrow: 1,
+    justifyContent: 'center',
+    padding: spacing.lg,
+    paddingBottom: spacing.xl,
+  },
+  header: {
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  headerContent: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+
+  },
+  iconContainer: {
+    alignItems: 'center',
+    borderRadius: 16,
+    height: 32,
+    justifyContent: 'center',
+    position: 'absolute',
+    width: 32,
+    zIndex: 1,
   },
   modalContent: {
-    width: '90%',
-    maxWidth: 400,
-    maxHeight: '85%',
     borderRadius: radii.lg,
+    elevation: 10,
+    maxHeight: '85%',
+    maxWidth: 400,
+    overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.3,
     shadowRadius: 20,
-    elevation: 10,
-    overflow: 'hidden',
+    width: '90%',
+  },
+  overlay: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
   },
   safeAreaContent: {
     maxHeight: 500,
   },
-  centerContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: 300,
-  },
   scrollView: {
     maxHeight: 400,
   },
-  header: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
+  selectedIndicator: {
     alignItems: 'center',
+    borderColor: '#FFFFFF',
+    borderRadius: 10,
+    borderWidth: 2,
+    elevation: 3,
+    height: 20,
+    justifyContent: 'center',
+    position: 'absolute',
+    right: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    top: 4,
+    width: 20,
   },
-  headerContent: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  selectedOverlay: {
     alignItems: 'center',
-
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    bottom: 0,
+    justifyContent: 'center',
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+  },
+  themeGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.lg,
+    justifyContent: 'space-around',
+  },
+  themeItem: {
+    alignItems: 'center',
+    gap: spacing.sm,
+    minWidth: 75,
+    width: '22%',
+  },
+  themeName: {
+    fontSize: typography.bodySmall.fontSize,
+    marginTop: spacing.xs,
+    textAlign: 'center',
   },
   title: {
     fontSize: typography.heading3.fontSize,
     fontWeight: '600' as const,
     lineHeight: typography.heading3.lineHeight,
-  },
-  closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  content: {
-    padding: spacing.lg,
-    paddingBottom: spacing.xl,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexGrow: 1,
-  },
-  themeGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-around',
-    gap: spacing.lg,
-  },
-  themeItem: {
-    width: '22%',
-    minWidth: 75,
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  colorCircle: {
-    width: 65,
-    height: 65,
-    borderRadius: 32.5,
-    position: 'relative',
-    overflow: 'hidden',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  colorGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: '50%',
-    opacity: 0.6,
-  },
-  colorBase: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: '50%',
-  },
-  selectedOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-  },
-  selectedIndicator: {
-    position: 'absolute',
-    top: 4,
-    right: 4,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 3,
-  },
-  iconContainer: {
-    position: 'absolute',
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1,
-  },
-  themeName: {
-    fontSize: typography.bodySmall.fontSize,
-    textAlign: 'center',
-    marginTop: spacing.xs,
   },
 });
 

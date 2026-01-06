@@ -18,7 +18,7 @@ i18n
     resources,
     lng: 'en', // Default language - will be overridden by store subscription
     fallbackLng: 'en',
-    compatibilityJSON: 'v3', // For React Native compatibility
+    compatibilityJSON: 'v4', // For React Native compatibility
     interpolation: {
       escapeValue: false, // React already escapes values
     },
