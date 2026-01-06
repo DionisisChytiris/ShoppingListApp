@@ -22,7 +22,9 @@
     "allLists": "Todas las Listas",
     "noListsYet": "Aún no hay listas",
     "createFirstList": "Crea tu primera lista de compras para comenzar",
-    "createList": "Crear Lista"
+    "createList": "Crear Lista",
+    "noFavorites": "Aún no hay favoritos",
+    "addFavorites": "Marca listas con estrella desde la pestaña Inicio para añadirlas aquí"
   },
   "listEditor": {
     "listName": "Nombre de la lista",

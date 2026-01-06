@@ -22,7 +22,9 @@
     "allLists": "All Lists",
     "noListsYet": "No lists yet",
     "createFirstList": "Create your first shopping list to get started",
-    "createList": "Create List"
+    "createList": "Create List",
+    "noFavorites": "No favorites yet",
+    "addFavorites": "Star lists from the Home tab to add them here"
   },
   "listEditor": {
     "listName": "List name",

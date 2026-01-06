@@ -18,6 +18,7 @@ import {
   updateListTitle,
 } from "../../redux/listsSlice";
 import ItemRow from "../components/ItemRow";
+import CircularProgress from "../components/CircularProgress";
 import { uid } from "../lib/uid";
 import AddItemModal from "../modals/AddItemModal";
 import { colors, spacing, radii, typography } from "../lib/theme";
@@ -57,70 +58,146 @@ export default function ListEditorScreen({ route, navigation }: Props) {
     setTitle(list?.title ?? "");
   }, [list?.title]);
 
-  // Group items by category for display
-  const groupedItems = useMemo(() => {
-    if (!list) return [];
-    
+  // Group items by category for display, separated into uncompleted and completed
+  const { uncompletedGrouped, completedGrouped } = useMemo(() => {
+    if (!list) return { uncompletedGrouped: [], completedGrouped: [] };
+
     const itemsToGroup = selectedCategory
       ? list.items.filter(item => item.category === selectedCategory)
       : list.items;
 
-    // Group by category
-    const grouped: Record<string, Item[]> = {};
+    // Separate by checked status
+    const uncompleted: Item[] = [];
+    const completed: Item[] = [];
+
     itemsToGroup.forEach(item => {
-      const category = item.category || 'other';
-      if (!grouped[category]) {
-        grouped[category] = [];
+      if (item.checked) {
+        completed.push(item);
+      } else {
+        uncompleted.push(item);
       }
-      grouped[category].push(item);
     });
 
-    // Convert to sections array, ordered by CATEGORIES array
-    const sections = CATEGORIES.filter(cat => grouped[cat] && grouped[cat].length > 0)
+    // Group uncompleted by category
+    const uncompletedGroupedByCat: Record<string, Item[]> = {};
+    uncompleted.forEach(item => {
+      const category = item.category || 'other';
+      if (!uncompletedGroupedByCat[category]) {
+        uncompletedGroupedByCat[category] = [];
+      }
+      uncompletedGroupedByCat[category].push(item);
+    });
+
+    // Group completed by category
+    const completedGroupedByCat: Record<string, Item[]> = {};
+    completed.forEach(item => {
+      const category = item.category || 'other';
+      if (!completedGroupedByCat[category]) {
+        completedGroupedByCat[category] = [];
+      }
+      completedGroupedByCat[category].push(item);
+    });
+
+    // Convert to sections array for uncompleted
+    const uncompletedSections = CATEGORIES.filter(cat => uncompletedGroupedByCat[cat] && uncompletedGroupedByCat[cat].length > 0)
       .map(category => ({
         title: category,
-        data: grouped[category],
+        data: uncompletedGroupedByCat[category],
       }));
 
-    // Add items without category to 'other' section
-    if (grouped['other'] && grouped['other'].length > 0) {
-      const otherIndex = sections.findIndex(s => s.title === 'other');
+    if (uncompletedGroupedByCat['other'] && uncompletedGroupedByCat['other'].length > 0) {
+      const otherIndex = uncompletedSections.findIndex(s => s.title === 'other');
       if (otherIndex === -1) {
-        sections.push({ title: 'other', data: grouped['other'] });
+        uncompletedSections.push({ title: 'other', data: uncompletedGroupedByCat['other'] });
       }
     }
 
-    return sections;
+    // Convert to sections array for completed
+    const completedSections = CATEGORIES.filter(cat => completedGroupedByCat[cat] && completedGroupedByCat[cat].length > 0)
+      .map(category => ({
+        title: category,
+        data: completedGroupedByCat[category],
+      }));
+
+    if (completedGroupedByCat['other'] && completedGroupedByCat['other'].length > 0) {
+      const otherIndex = completedSections.findIndex(s => s.title === 'other');
+      if (otherIndex === -1) {
+        completedSections.push({ title: 'other', data: completedGroupedByCat['other'] });
+      }
+    }
+
+    return { uncompletedGrouped: uncompletedSections, completedGrouped: completedSections };
   }, [list?.items, selectedCategory]);
 
-  // Flatten grouped items into a single array for continuous grid display (when "All" is selected)
-  const allItemsOrdered = useMemo(() => {
-    if (!list || selectedCategory !== null) return [];
-    
-    // Group by category
-    const grouped: Record<string, Item[]> = {};
+  // Separate items into uncompleted and completed, grouped by category (when "All" is selected)
+  const { uncompletedItems, completedItems } = useMemo(() => {
+    if (!list || selectedCategory !== null) return { uncompletedItems: [], completedItems: [] };
+
+    // Separate items by checked status
+    const uncompleted: Item[] = [];
+    const completed: Item[] = [];
+
     list.items.forEach(item => {
-      const category = item.category || 'other';
-      if (!grouped[category]) {
-        grouped[category] = [];
+      if (item.checked) {
+        completed.push(item);
+      } else {
+        uncompleted.push(item);
       }
-      grouped[category].push(item);
     });
 
-    // Flatten into single array while maintaining category order
-    const flatItems: Item[] = [];
-    CATEGORIES.forEach(category => {
-      if (grouped[category] && grouped[category].length > 0) {
-        flatItems.push(...grouped[category]);
+    // Group uncompleted items by category
+    const uncompletedGrouped: Record<string, Item[]> = {};
+    uncompleted.forEach(item => {
+      const category = item.category || 'other';
+      if (!uncompletedGrouped[category]) {
+        uncompletedGrouped[category] = [];
       }
+      uncompletedGrouped[category].push(item);
     });
-    
-    // Add items without category (other)
-    if (grouped['other'] && grouped['other'].length > 0) {
-      flatItems.push(...grouped['other']);
+
+    // Group completed items by category
+    const completedGrouped: Record<string, Item[]> = {};
+    completed.forEach(item => {
+      const category = item.category || 'other';
+      if (!completedGrouped[category]) {
+        completedGrouped[category] = [];
+      }
+      completedGrouped[category].push(item);
+    });
+
+    // Sort categories for uncompleted items
+    const uncompletedCategories = CATEGORIES.filter(cat => uncompletedGrouped[cat] && uncompletedGrouped[cat].length > 0);
+    if (uncompletedGrouped['other'] && uncompletedGrouped['other'].length > 0) {
+      if (!uncompletedCategories.includes('other')) {
+        uncompletedCategories.push('other');
+      }
     }
 
-    return flatItems;
+    // Sort categories for completed items
+    const completedCategories = CATEGORIES.filter(cat => completedGrouped[cat] && completedGrouped[cat].length > 0);
+    if (completedGrouped['other'] && completedGrouped['other'].length > 0) {
+      if (!completedCategories.includes('other')) {
+        completedCategories.push('other');
+      }
+    }
+
+    // Flatten uncompleted items maintaining category order
+    const uncompletedFlat: Item[] = [];
+    uncompletedCategories.forEach(category => {
+      if (uncompletedGrouped[category] && uncompletedGrouped[category].length > 0) {
+        uncompletedFlat.push(...uncompletedGrouped[category]);
+      }
+    });
+
+    // Flatten completed items maintaining category order
+    const completedFlat: Item[] = [];
+    completedCategories.forEach(category => {
+      if (completedGrouped[category] && completedGrouped[category].length > 0) {
+        completedFlat.push(...completedGrouped[category]);
+      }
+    });
+
+    return { uncompletedItems: uncompletedFlat, completedItems: completedFlat };
   }, [list?.items, selectedCategory]);
 
   if (!list) {
@@ -128,10 +205,10 @@ export default function ListEditorScreen({ route, navigation }: Props) {
       <SafeAreaView
         style={[
           styles.container,
-          { 
-            justifyContent: "center", 
+          {
+            justifyContent: "center",
             alignItems: "center",
-            backgroundColor: theme.backgroundColor 
+            backgroundColor: theme.backgroundColor
           },
         ]}
       >
@@ -155,7 +232,7 @@ export default function ListEditorScreen({ route, navigation }: Props) {
 
   function handleSaveItem(itemData: Omit<Item, 'id' | 'createdAt'>) {
     if (!list) return;
-    
+
     if (editingItem) {
       const updated: Item = {
         ...editingItem,
@@ -183,7 +260,7 @@ export default function ListEditorScreen({ route, navigation }: Props) {
 
   function onDeleteItem(itemId: string) {
     if (!list) return;
-    
+
     Alert.alert("Delete item", "Are you sure?", [
       { text: "Cancel", style: "cancel" },
       {
@@ -196,7 +273,7 @@ export default function ListEditorScreen({ route, navigation }: Props) {
 
   function onSaveTitle() {
     if (!list) return;
-    
+
     if (title.trim() && title !== list.title) {
       dispatch(updateListTitle({ id: list.id, title: title.trim() }));
     }
@@ -206,8 +283,8 @@ export default function ListEditorScreen({ route, navigation }: Props) {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
       <View style={[styles.header, { borderBottomColor: theme.colors.outline }]}>
-        <TouchableOpacity 
-          onPress={() => navigation.goBack()} 
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
           style={[styles.backButton, { backgroundColor: theme.colors.surfaceVariant }]}
           activeOpacity={0.7}
         >
@@ -220,34 +297,46 @@ export default function ListEditorScreen({ route, navigation }: Props) {
           placeholder="List name"
           placeholderTextColor={theme.colors.onSurfaceVariant}
         />
-        <TouchableOpacity 
-          onPress={onSaveTitle} 
-          style={[styles.doneButton, { backgroundColor: theme.colors.primary }]}
-          activeOpacity={0.8}
-        >
-          <Text style={[styles.doneButtonText, { color: colors.onPrimary }]}>Done</Text>
-        </TouchableOpacity>
+        <View>
+          <Text>!</Text>
+        </View>
+        {totalItems > 0 && (
+          <View style={styles.circularProgressContainer}>
+            <CircularProgress
+              progress={totalItems > 0 ? checkedCount / totalItems : 0}
+              size={40}
+              strokeWidth={3}
+              backgroundColor={theme.colors.surfaceVariant}
+              progressColor={theme.colors.primary}
+            />
+            <View style={styles.progressTextContainer}>
+              <Text style={[styles.progressText, { color: theme.colors.onSurface }]}>
+                {checkedCount}/{totalItems}
+              </Text>
+            </View>
+          </View>
+        )}
       </View>
 
       <View style={[styles.statsBar, { backgroundColor: theme.colors.surface }]}>
-        {totalItems > 0 && (
+        {/* {totalItems > 0 && (
           <>
             <Text style={[styles.statsText, { color: theme.colors.onSurfaceVariant }]}>
               {checkedCount} of {totalItems} items completed
             </Text>
             <View style={[styles.progressBar, { backgroundColor: theme.colors.surfaceVariant }]}>
-              <View 
+              <View
                 style={[
-                  styles.progressFill, 
-                  { 
+                  styles.progressFill,
+                  {
                     width: `${(checkedCount / totalItems) * 100}%`,
-                    backgroundColor: theme.colors.primary 
+                    backgroundColor: theme.colors.primary
                   }
-                ]} 
+                ]}
               />
             </View>
           </>
-        )}
+        )} */}
         <Text style={[styles.dateText, { color: theme.colors.onSurfaceVariant }]}>
           Created {formatDateTime(list.createdAt)}
         </Text>
@@ -289,7 +378,7 @@ export default function ListEditorScreen({ route, navigation }: Props) {
             {CATEGORIES.map((cat) => {
               const hasItems = list.items.some(item => item.category === cat);
               if (!hasItems) return null;
-              
+
               return (
                 <TouchableOpacity
                   key={cat}
@@ -352,48 +441,131 @@ export default function ListEditorScreen({ route, navigation }: Props) {
             </Text>
           </View>
         ) : selectedCategory === null ? (
-          // When "All" is selected, render all items in a single continuous grid (grouped by category)
-          <View style={styles.itemsGrid}>
-            {allItemsOrdered.map((item) => (
-              <View key={item.id} style={styles.itemWrapper}>
-                <ItemRow
-                  item={item}
-                  onToggle={() =>
-                    dispatch(toggleItemChecked({ listId: list.id, itemId: item.id }))
-                  }
-                  onEdit={() => openEditModal(item)}
-                  onDelete={() => onDeleteItem(item.id)}
-                />
-              </View>
-            ))}
-          </View>
+          // When "All" is selected, render uncompleted items first, then completed items
+          <>
+            {/* Uncompleted Items */}
+            {uncompletedItems.length > 0 && (
+              <>
+                <View style={[styles.sectionHeader, { backgroundColor: theme.colors.surface }]}>
+                  <Text style={[styles.sectionHeaderText, { color: theme.colors.onSurface }]}>
+                    Uncompleted ({uncompletedItems.length})
+                  </Text>
+                </View>
+                <View style={styles.itemsGrid}>
+                  {uncompletedItems.map((item) => (
+                    <View key={item.id} style={styles.itemWrapper}>
+                      <ItemRow
+                        item={item}
+                        onToggle={() =>
+                          dispatch(toggleItemChecked({ listId: list.id, itemId: item.id }))
+                        }
+                        onEdit={() => openEditModal(item)}
+                        onDelete={() => onDeleteItem(item.id)}
+                      />
+                    </View>
+                  ))}
+                </View>
+              </>
+            )}
+
+            {/* Completed Items */}
+            {completedItems.length > 0 && (
+              <>
+                {uncompletedItems.length > 0 && (
+                  <View style={[styles.sectionDivider, { backgroundColor: theme.colors.outline }]} />
+                )}
+                <View style={[styles.sectionHeader, { backgroundColor: theme.colors.surface }]}>
+                  <Text style={[styles.sectionHeaderText, { color: theme.colors.onSurfaceVariant }]}>
+                    Completed ({completedItems.length})
+                  </Text>
+                </View>
+                <View style={styles.itemsGrid}>
+                  {completedItems.map((item) => (
+                    <View key={item.id} style={styles.itemWrapper}>
+                      <ItemRow
+                        item={item}
+                        onToggle={() =>
+                          dispatch(toggleItemChecked({ listId: list.id, itemId: item.id }))
+                        }
+                        onEdit={() => openEditModal(item)}
+                        onDelete={() => onDeleteItem(item.id)}
+                      />
+                    </View>
+                  ))}
+                </View>
+              </>
+            )}
+          </>
         ) : (
-          // When a specific category is selected, render only that category's items
-          groupedItems.map((section) => (
-            <View key={section.title}>
-              <View style={styles.itemsGrid}>
-                {section.data.map((item) => (
-                  <View key={item.id} style={styles.itemWrapper}>
-                    <ItemRow
-                      item={item}
-                      onToggle={() =>
-                        dispatch(toggleItemChecked({ listId: list.id, itemId: item.id }))
-                      }
-                      onEdit={() => openEditModal(item)}
-                      onDelete={() => onDeleteItem(item.id)}
-                    />
-                   
+          // When a specific category is selected, render uncompleted first, then completed
+          <>
+            {/* Uncompleted Items */}
+            {uncompletedGrouped.length > 0 && (
+              <>
+                <View style={[styles.sectionHeader, { backgroundColor: theme.colors.surface }]}>
+                  <Text style={[styles.sectionHeaderText, { color: theme.colors.onSurface }]}>
+                    Uncompleted
+                  </Text>
+                </View>
+                {uncompletedGrouped.map((section) => (
+                  <View key={section.title}>
+                    <View style={styles.itemsGrid}>
+                      {section.data.map((item) => (
+                        <View key={item.id} style={styles.itemWrapper}>
+                          <ItemRow
+                            item={item}
+                            onToggle={() =>
+                              dispatch(toggleItemChecked({ listId: list.id, itemId: item.id }))
+                            }
+                            onEdit={() => openEditModal(item)}
+                            onDelete={() => onDeleteItem(item.id)}
+                          />
+                        </View>
+                      ))}
+                    </View>
                   </View>
                 ))}
-              </View>
-            </View>
-          ))
+              </>
+            )}
+
+            {/* Completed Items */}
+            {completedGrouped.length > 0 && (
+              <>
+                {uncompletedGrouped.length > 0 && (
+                  <View style={[styles.sectionDivider, { backgroundColor: theme.colors.outline }]} />
+                )}
+                <View style={[styles.sectionHeader, { backgroundColor: theme.colors.surface }]}>
+                  <Text style={[styles.sectionHeaderText, { color: theme.colors.onSurfaceVariant }]}>
+                    Completed
+                  </Text>
+                </View>
+                {completedGrouped.map((section) => (
+                  <View key={section.title}>
+                    <View style={styles.itemsGrid}>
+                      {section.data.map((item) => (
+                        <View key={item.id} style={styles.itemWrapper}>
+                          <ItemRow
+                            item={item}
+                            onToggle={() =>
+                              dispatch(toggleItemChecked({ listId: list.id, itemId: item.id }))
+                            }
+                            onEdit={() => openEditModal(item)}
+                            onDelete={() => onDeleteItem(item.id)}
+                          />
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                ))}
+              </>
+            )}
+          </>
         )}
       </ScrollView>
 
       {/* Add Item Button */}
       <View style={[styles.addButtonContainer, { backgroundColor: 'transparent' }]}>
-      {/* <View style={[styles.addButtonContainer, { backgroundColor: theme.colors.surface }]}> */}
+        {/* <View style={[styles.addButtonContainer, { backgroundColor: theme.colors.surface }]}> */}
         <TouchableOpacity
           onPress={openAddModal}
           style={[styles.addButton, { backgroundColor: theme.colors.primary }]}
@@ -480,16 +652,25 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
     opacity: 0.7,
   },
-  doneButton: {
+  circularProgressContainer: {
     alignItems: "center",
-    borderRadius: radii.md,
-    minWidth: 60,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    height: 40,
+    justifyContent: "center",
+    position: "relative",
+    width: 40,
   },
-  doneButtonText: {
-    fontSize: typography.button.fontSize,
-    fontWeight: typography.button.fontWeight as 600,
+  progressTextContainer: {
+    alignItems: "center",
+    bottom: 0,
+    justifyContent: "center",
+    left: 0,
+    position: "absolute",
+    right: 0,
+    top: 0,
+  },
+  progressText: {
+    fontSize: typography.label.fontSize,
+    fontWeight: typography.label.fontWeight as 600,
   },
   emptyDescription: {
     fontSize: typography.body.fontSize,
@@ -568,4 +749,19 @@ const styles = StyleSheet.create({
     fontSize: typography.heading3.fontSize,
     fontWeight: typography.heading3.fontWeight as 600,
   },
+  sectionHeader: {
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.sm,
+  },
+  sectionHeaderText: {
+    fontSize: typography.heading3.fontSize,
+    fontWeight: typography.heading3.fontWeight as 600,
+  },
+  sectionDivider: {
+    height: 1,
+    marginVertical: spacing.md,
+    marginHorizontal: spacing.md,
+  },
 });
+

@@ -139,24 +139,69 @@ export default function AddItemModal({ visible, onClose, onSave, editingItem }: 
               )}
               {/* </View> */}
 
-              {/* Header */}
-              {/* <View style={styles.header}>
+                {/* Actions */}
+                <View style={[styles.actionsRow, { borderTopColor: theme.colors.outline }]}>
                 {editingItem && (
-                  <View style={[styles.editingBadge, { backgroundColor: theme.colors.primaryLight }]}>
-                    <Ionicons name="create-outline" size={16} color={theme.colors.primary} />
-                    <Text style={[styles.editingText, { color: theme.colors.primary }]}>
-                      Editing item
+                  <TouchableOpacity
+                    onPress={handleReset}
+                    style={[
+                      styles.cancelButton,
+                      {
+                        backgroundColor: theme.colors.surfaceVariant,
+                        borderColor: theme.colors.outline,
+                      },
+                    ]}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons
+                      name="refresh-outline"
+                      size={18}
+                      color={theme.colors.onSurfaceVariant}
+                    />
+                    <Text
+                      style={[styles.cancelButtonText, { color: theme.colors.onSurfaceVariant }]}
+                    >
+                      New
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 )}
                 <TouchableOpacity
-                  onPress={handleClose}
-                  style={[styles.closeButton, { backgroundColor: theme.colors.surfaceVariant }]}
-                  activeOpacity={0.7}
+                  onPress={handleSave}
+                  style={[
+                    styles.saveButton,
+                    {
+                      backgroundColor:
+                        name.trim() && category
+                          ? theme.colors.primary
+                          : theme.colors.surfaceVariant,
+                      opacity: name.trim() && category ? 1 : 0.5,
+                    },
+                  ]}
+                  activeOpacity={0.8}
+                  disabled={!name.trim() || !category}
                 >
-                  <Ionicons name="close" size={20} color={theme.colors.onSurface} />
+                  <MaterialIcons
+                    name={editingItem ? 'check-circle' : 'add-circle'}
+                    size={20}
+                    color={
+                      name.trim() && category ? colors.onPrimary : theme.colors.onSurfaceVariant
+                    }
+                  />
+                  <Text
+                    style={[
+                      styles.saveButtonText,
+                      {
+                        color:
+                          name.trim() && category
+                            ? colors.onPrimary
+                            : theme.colors.onSurfaceVariant,
+                      },
+                    ]}
+                  >
+                    {editingItem ? 'Save Item' : 'Add Item'}
+                  </Text>
                 </TouchableOpacity>
-              </View> */}
+              </View>
 
               {/* Category Selection - Scrollable Row */}
               <View style={styles.categorySection}>
@@ -379,69 +424,7 @@ export default function AddItemModal({ visible, onClose, onSave, editingItem }: 
                 </View>
               </ScrollView>
 
-              {/* Actions */}
-              <View style={[styles.actionsRow, { borderTopColor: theme.colors.outline }]}>
-                {editingItem && (
-                  <TouchableOpacity
-                    onPress={handleReset}
-                    style={[
-                      styles.cancelButton,
-                      {
-                        backgroundColor: theme.colors.surfaceVariant,
-                        borderColor: theme.colors.outline,
-                      },
-                    ]}
-                    activeOpacity={0.7}
-                  >
-                    <Ionicons
-                      name="refresh-outline"
-                      size={18}
-                      color={theme.colors.onSurfaceVariant}
-                    />
-                    <Text
-                      style={[styles.cancelButtonText, { color: theme.colors.onSurfaceVariant }]}
-                    >
-                      New
-                    </Text>
-                  </TouchableOpacity>
-                )}
-                <TouchableOpacity
-                  onPress={handleSave}
-                  style={[
-                    styles.saveButton,
-                    {
-                      backgroundColor:
-                        name.trim() && category
-                          ? theme.colors.primary
-                          : theme.colors.surfaceVariant,
-                      opacity: name.trim() && category ? 1 : 0.5,
-                    },
-                  ]}
-                  activeOpacity={0.8}
-                  disabled={!name.trim() || !category}
-                >
-                  <MaterialIcons
-                    name={editingItem ? 'check-circle' : 'add-circle'}
-                    size={20}
-                    color={
-                      name.trim() && category ? colors.onPrimary : theme.colors.onSurfaceVariant
-                    }
-                  />
-                  <Text
-                    style={[
-                      styles.saveButtonText,
-                      {
-                        color:
-                          name.trim() && category
-                            ? colors.onPrimary
-                            : theme.colors.onSurfaceVariant,
-                      },
-                    ]}
-                  >
-                    {editingItem ? 'Save Item' : 'Add Item'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
+            
             </SafeAreaView>
           </View>
         </KeyboardAvoidingView>

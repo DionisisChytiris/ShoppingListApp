@@ -27,7 +27,6 @@ export default function HomeScreen() {
 
   // Get sorted lists
   const sortedLists = [...lists].sort((a, b) => b.createdAt - a.createdAt);
-  const favoriteLists = sortedLists.filter((list) => list.isFavorite);
   const recentList = sortedLists[0] || null;
   const otherLists = sortedLists.filter((list) => !list.isFavorite && list.id !== recentList?.id);
 
@@ -45,7 +44,7 @@ export default function HomeScreen() {
       <TouchableOpacity
         key={item.id}
         style={[styles.card, { backgroundColor: theme.colors.surface }]}
-        // onPress={() => (navigation as any).navigate('ListEditor', { listId: item.id })}
+        onPress={() => navigation.navigate('ListEditor', { listId: item.id })}
         activeOpacity={0.7}
       >
         <View style={styles.cardContent}>
@@ -140,19 +139,6 @@ export default function HomeScreen() {
               </Text>
             </View>
             {renderListCard(recentList, false)}
-          </View>
-        )}
-
-        {/* Favorite Lists */}
-        {favoriteLists.length > 0 && (
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Ionicons name="star" size={20} color={colors.warning} />
-              <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-                {t('home.favorites')} ({favoriteLists.length})
-              </Text>
-            </View>
-            {favoriteLists.slice(0, 3).map((list) => renderListCard(list))}
           </View>
         )}
 

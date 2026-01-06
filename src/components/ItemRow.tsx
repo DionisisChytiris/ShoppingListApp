@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Modal, Pressable } from 'react-native';
 import { Item } from '../types';
 import { colors, spacing, radii, typography } from '../lib/theme';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,6 +17,7 @@ type Props = {
 
 export default function ItemRow({ item, onToggle, onEdit, onDelete }: Props) {
   const { theme } = useTheme();
+  const [imageModalVisible, setImageModalVisible] = useState(false);
   
   return (
     <TouchableOpacity
@@ -97,13 +98,17 @@ export default function ItemRow({ item, onToggle, onEdit, onDelete }: Props) {
 
       {/* Product Image - Bottom Right */}
       {item.photoUri ? (
-        <View style={[styles.imageContainer, { backgroundColor: theme.colors.surfaceVariant }]}>
+        <TouchableOpacity
+          onPress={() => setImageModalVisible(true)}
+          style={[styles.imageContainer, { backgroundColor: theme.colors.surfaceVariant }]}
+          activeOpacity={0.8}
+        >
           <Image 
             source={{ uri: item.photoUri }} 
             style={styles.productImage}
             resizeMode="contain"
           />
-        </View>
+        </TouchableOpacity>
       ) : (
         <View style={[styles.imageContainer, styles.placeholderImage, { backgroundColor: theme.colors.surfaceVariant }]}>
           {item.category ? (
@@ -117,6 +122,36 @@ export default function ItemRow({ item, onToggle, onEdit, onDelete }: Props) {
           )}
         </View>
       )}
+
+      {/* Image Modal */}
+      <Modal
+        visible={imageModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setImageModalVisible(false)}
+      >
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setImageModalVisible(false)}
+        >
+          <View style={styles.modalContent}>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setImageModalVisible(false)}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="close" size={24} color={theme.colors.onSurface} />
+            </TouchableOpacity>
+            {item.photoUri && (
+              <Image
+                source={{ uri: item.photoUri }}
+                style={styles.fullImage}
+                resizeMode="contain"
+              />
+            )}
+          </View>
+        </Pressable>
+      </Modal>
 
       {/* Edit icon - Top Right */}
       <TouchableOpacity 
@@ -265,7 +300,32 @@ const styles = StyleSheet.create({
     top: spacing.sm,
     zIndex: 10
   },
-
-
-
+  modalOverlay: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    flex: 1,
+    justifyContent: 'center',
+  },
+  modalContent: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+    width: '100%',
+  },
+  closeButton: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 20,
+    height: 40,
+    justifyContent: 'center',
+    position: 'absolute',
+    right: spacing.lg,
+    top: spacing.xl,
+    width: 40,
+    zIndex: 10,
+  },
+  fullImage: {
+    height: '80%',
+    width: '90%',
+  },
 });
