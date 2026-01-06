@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { spacing, typography, radii } from '../lib/theme';
+import { spacing, typography, radii, radius } from '../lib/theme';
 import { useTheme } from '../lib/themeContext';
 import { useNavigation } from '@react-navigation/native';
 import ThemeSelectionModal from '../modals/ThemeSelectionModal';
