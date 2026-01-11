@@ -34,6 +34,7 @@ export default function AddItemModal({ visible, onClose, onSave, editingItem }: 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
+  const [quantity, setQuantity] = useState('');
   const [photo, setPhoto] = useState<string | null>(null);
   const [category, setCategory] = useState<ItemCategory | undefined>(undefined);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -43,12 +44,14 @@ export default function AddItemModal({ visible, onClose, onSave, editingItem }: 
       setName(editingItem.name);
       setDescription(editingItem.description ?? '');
       setPrice(editingItem.price ? String(editingItem.price) : '');
+      setQuantity(editingItem.quantity ? String(editingItem.quantity) : '1');
       setPhoto(editingItem.photoUri ?? null);
       setCategory(editingItem.category);
     } else {
       setName('');
       setDescription('');
       setPrice('');
+      setQuantity('1');
       setPhoto(null);
       setCategory(undefined);
     }
@@ -64,7 +67,7 @@ export default function AddItemModal({ visible, onClose, onSave, editingItem }: 
       description: description || undefined,
       price: price || undefined,
       photoUri: photo,
-      quantity: editingItem?.quantity ?? 1,
+      quantity: quantity || '1',
       checked: editingItem?.checked ?? false,
     };
 
@@ -90,7 +93,7 @@ export default function AddItemModal({ visible, onClose, onSave, editingItem }: 
             })()
           : undefined,
       photoUri: validation.data.photoUri,
-      quantity: validation.data.quantity ?? 1,
+      quantity: validation.data.quantity,
       checked: validation.data.checked ?? false,
     };
     onSave(transformedData);
@@ -101,6 +104,7 @@ export default function AddItemModal({ visible, onClose, onSave, editingItem }: 
     setName('');
     setDescription('');
     setPrice('');
+    setQuantity('1');
     setPhoto(null);
     setCategory(undefined);
     setErrors({});
@@ -111,6 +115,7 @@ export default function AddItemModal({ visible, onClose, onSave, editingItem }: 
     setName('');
     setDescription('');
     setPrice('');
+    setQuantity('1');
     setPhoto(null);
     setCategory(undefined);
     setErrors({});
@@ -324,7 +329,7 @@ export default function AddItemModal({ visible, onClose, onSave, editingItem }: 
                         </Text>
                       )}
                     </View>
-                    <View style={{ width: 120 }}>
+                    <View style={{ width: 100 }}>
                       <View
                         style={[
                           styles.priceInputWrapper,
@@ -368,6 +373,55 @@ export default function AddItemModal({ visible, onClose, onSave, editingItem }: 
                           style={[styles.errorText, { color: theme.colors.error || '#FF5252' }]}
                         >
                           {getFieldError(errors, 'price')}
+                        </Text>
+                      )}
+                    </View>
+                    <View style={{ width: 80 }}>
+                      <View
+                        style={[
+                          styles.priceInputWrapper,
+                          {
+                            backgroundColor: theme.colors.surfaceVariant,
+                            borderColor: getFieldError(errors, 'quantity')
+                              ? theme.colors.error || '#FF5252'
+                              : 'transparent',
+                            borderWidth: getFieldError(errors, 'quantity') ? 1 : 0,
+                          },
+                        ]}
+                      >
+                        <Ionicons
+                          name="cube-outline"
+                          size={18}
+                          color={theme.colors.onSurfaceVariant}
+                          style={styles.inputIcon}
+                        />
+                        <TextInput
+                          placeholder="1"
+                          placeholderTextColor={theme.colors.onSurfaceVariant}
+                          keyboardType="number-pad"
+                          value={quantity}
+                          onChangeText={(text) => {
+                            // Only allow positive integers
+                            const cleaned = text.replace(/[^0-9]/g, '');
+                            setQuantity(cleaned);
+                            // Clear error when user starts typing
+                            if (errors.quantity) {
+                              setErrors((prev) => {
+                                const newErrors = { ...prev };
+                                delete newErrors.quantity;
+                                return newErrors;
+                              });
+                            }
+                          }}
+                          style={[styles.priceInput, { color: theme.colors.onSurface }]}
+                          returnKeyType="next"
+                        />
+                      </View>
+                      {getFieldError(errors, 'quantity') && (
+                        <Text
+                          style={[styles.errorText, { color: theme.colors.error || '#FF5252' }]}
+                        >
+                          {getFieldError(errors, 'quantity')}
                         </Text>
                       )}
                     </View>
@@ -579,7 +633,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     minHeight: 52,
     paddingHorizontal: spacing.md,
-    width: 120,
   },
   safeArea: {
     flex: 1,

@@ -52,6 +52,7 @@ export default function ListEditorScreen({ route, navigation }: Props) {
   const [modalVisible, setModalVisible] = useState(false);
   const [title, setTitle] = useState(list?.title ?? "");
   const [selectedCategory, setSelectedCategory] = useState<ItemCategory | null>(null);
+  const [showCreatedDate, setShowCreatedDate] = useState(false)
 
   // keep title in sync when list loads
   React.useEffect(() => {
@@ -290,16 +291,22 @@ export default function ListEditorScreen({ route, navigation }: Props) {
         >
           <Ionicons name="arrow-back" size={20} color={theme.colors.onSurface} />
         </TouchableOpacity>
-        <TextInput
+        <View style={{flex:1, marginTop: 5}}>
+          <Text  style={[styles.titleInput, { color: theme.colors.onSurface }]}>{title}</Text>
+        </View>
+        {/* <TextInput
           value={title}
           onChangeText={setTitle}
           style={[styles.titleInput, { color: theme.colors.onSurface }]}
           placeholder="List name"
           placeholderTextColor={theme.colors.onSurfaceVariant}
-        />
-        <View>
-          <Text>!</Text>
-        </View>
+        /> */}
+        <TouchableOpacity 
+        style={{ width: 50, height: 40, justifyContent: 'center', alignItems: 'center'}}
+        onPress={() => setShowCreatedDate(!showCreatedDate)}
+        >
+          {showCreatedDate? <Text>x</Text>:<Text>!</Text>}
+        </TouchableOpacity>
         {totalItems > 0 && (
           <View style={styles.circularProgressContainer}>
             <CircularProgress
@@ -318,7 +325,7 @@ export default function ListEditorScreen({ route, navigation }: Props) {
         )}
       </View>
 
-      <View style={[styles.statsBar, { backgroundColor: theme.colors.surface }]}>
+      {showCreatedDate &&  <View style={[styles.statsBar, { backgroundColor: theme.colors.surface }]}>
         {/* {totalItems > 0 && (
           <>
             <Text style={[styles.statsText, { color: theme.colors.onSurfaceVariant }]}>
@@ -340,7 +347,8 @@ export default function ListEditorScreen({ route, navigation }: Props) {
         <Text style={[styles.dateText, { color: theme.colors.onSurfaceVariant }]}>
           Created {formatDateTime(list.createdAt)}
         </Text>
-      </View>
+      </View>}
+     
 
       {/* Category Filter Row */}
       {list.items.length > 0 && (
@@ -446,11 +454,11 @@ export default function ListEditorScreen({ route, navigation }: Props) {
             {/* Uncompleted Items */}
             {uncompletedItems.length > 0 && (
               <>
-                <View style={[styles.sectionHeader, { backgroundColor: theme.colors.surface }]}>
+                {/* <View style={[styles.sectionHeader, { backgroundColor: theme.colors.surface }]}>
                   <Text style={[styles.sectionHeaderText, { color: theme.colors.onSurface }]}>
                     Uncompleted ({uncompletedItems.length})
                   </Text>
-                </View>
+                </View> */}
                 <View style={styles.itemsGrid}>
                   {uncompletedItems.map((item) => (
                     <View key={item.id} style={styles.itemWrapper}>

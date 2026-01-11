@@ -44,7 +44,22 @@ export const itemInputSchema = z.object({
       { message: 'Price must be a valid positive number' }
     ),
   photoUri: z.string().nullable().optional(),
-  quantity: z.number().int().positive().optional().default(1),
+  quantity: z
+    .union([z.string(), z.number()])
+    .optional()
+    .refine(
+      (val) => {
+        if (val === undefined || val === null || val === '') return true;
+        const num = typeof val === 'string' ? parseInt(val, 10) : val;
+        return !isNaN(num) && num >= 1 && Number.isInteger(num);
+      },
+      { message: 'Quantity must be a positive integer' }
+    )
+    .transform((val) => {
+      if (val === undefined || val === null || val === '') return 1;
+      const num = typeof val === 'string' ? parseInt(val, 10) : val;
+      return isNaN(num) || num < 1 ? 1 : num;
+    }),
   checked: z.boolean().optional().default(false),
 });
 
