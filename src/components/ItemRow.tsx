@@ -195,6 +195,23 @@ export default function ItemRow({ item, onToggle, onEdit, onDelete }: Props) {
 }
 
 const styles = StyleSheet.create({
+  QuantityContainer: {
+   alignItems: 'center',
+   // borderRadius: radii.md,
+   bottom: spacing.xxl,
+   // elevation: 3,
+   height: 80,
+   justifyContent: 'center',
+   // overflow: 'hidden',
+   left: 0,
+   position: 'absolute',
+   // shadowColor: '#000',
+   // shadowOffset: { width: 0, height: 2 },
+   // shadowOpacity: 0.15,
+   // shadowRadius: 4,
+   width: 80,
+   zIndex: 5,
+ },
   card: {
     borderRadius: radii.lg,
     elevation: 4,
@@ -242,6 +259,18 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     width: 28,
   },
+  closeButton: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 20,
+    height: 40,
+    justifyContent: 'center',
+    position: 'absolute',
+    right: spacing.lg,
+    top: spacing.xl,
+    width: 40,
+    zIndex: 10,
+  },
   deleteButton: {
     alignItems: 'center',
     bottom: 2,
@@ -252,12 +281,12 @@ const styles = StyleSheet.create({
     width: 32,
     zIndex: 0,
   },
-  description: {
-    fontSize: typography.bodySmall.fontSize,
-    fontWeight: typography.bodySmall.fontWeight as 400,
-    marginTop: spacing.xs,
-    opacity: 0.7,
-  },
+  // description: {
+  //   fontSize: typography.bodySmall.fontSize,
+  //   fontWeight: typography.bodySmall.fontWeight as 400,
+  //   marginTop: spacing.xs,
+  //   opacity: 0.7,
+  // },
   editButton: {
     alignItems: 'center',
     borderRadius: 16,
@@ -268,6 +297,10 @@ const styles = StyleSheet.create({
     top: 0,
     width: 32,
     zIndex: 10
+  },
+  fullImage: {
+    height: '80%',
+    width: '90%',
   },
   imageContainer: {
     alignItems: 'center',
@@ -286,18 +319,30 @@ const styles = StyleSheet.create({
     width: 80,
     zIndex: 5,
   },
-  infoContainer: {
-    flex: 1,
-    paddingTop: spacing.xs,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    marginBottom: spacing.xs,
-  },
+  // infoContainer: {
+  //   flex: 1,
+  //   paddingTop: spacing.xs,
+  // },
+  // metaRow: {
+  //   flexDirection: 'row',
+  //   gap: spacing.sm,
+  //   marginBottom: spacing.xs,
+  // },
   metaText: {
     fontSize: typography.label.fontSize,
     fontWeight: typography.label.fontWeight as 500,
+  },
+  modalContent: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+    width: '100%',
+  },
+  modalOverlay: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    flex: 1,
+    justifyContent: 'center',
   },
   placeholderImage: {
     alignItems: 'center',
@@ -307,62 +352,18 @@ const styles = StyleSheet.create({
     height: '100%',
     width: '100%',
   },
-  title: {
-    borderRadius: radii.sm,
-    fontSize: typography.body.fontSize,
-    fontWeight: typography.body.fontWeight as 600,
-    left: spacing.sm,
-    lineHeight: 20,
-    maxWidth: '70%',
-    paddingHorizontal: spacing.xs,
-    paddingVertical: spacing.xs / 2,
-    position: 'absolute',
-    top: spacing.sm,
-    zIndex: 10
-  },
-  modalOverlay: {
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.9)',
-    flex: 1,
-    justifyContent: 'center',
-  },
-  modalContent: {
-    alignItems: 'center',
-    flex: 1,
-    justifyContent: 'center',
-    width: '100%',
-  },
-  closeButton: {
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    borderRadius: 20,
-    height: 40,
-    justifyContent: 'center',
-    position: 'absolute',
-    right: spacing.lg,
-    top: spacing.xl,
-    width: 40,
-    zIndex: 10,
-  },
-  fullImage: {
-    height: '80%',
-    width: '90%',
-  },
-  QuantityContainer: {
-    alignItems: 'center',
-    // borderRadius: radii.md,
-    bottom: spacing.xxl,
-    // elevation: 3,
-    height: 80,
-    justifyContent: 'center',
-    // overflow: 'hidden',
-    position: 'absolute',
-    left: 0,
-    // shadowColor: '#000',
-    // shadowOffset: { width: 0, height: 2 },
-    // shadowOpacity: 0.15,
-    // shadowRadius: 4,
-    width: 80,
-    zIndex: 5,
-  }
+  // title: {
+  //   borderRadius: radii.sm,
+  //   fontSize: typography.body.fontSize,
+  //   fontWeight: typography.body.fontWeight as 600,
+  //   left: spacing.sm,
+  //   lineHeight: 20,
+  //   maxWidth: '70%',
+  //   paddingHorizontal: spacing.xs,
+  //   paddingVertical: spacing.xs / 2,
+  //   position: 'absolute',
+  //   top: spacing.sm,
+  //   zIndex: 10
+  // },
+ 
 });
