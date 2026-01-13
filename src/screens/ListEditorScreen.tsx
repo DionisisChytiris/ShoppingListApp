@@ -19,6 +19,7 @@ import {
 } from "../../redux/listsSlice";
 import ItemRow from "../components/ItemRow";
 import CircularProgress from "../components/CircularProgress";
+import ItemsCategories from "../components/ItemsCategories";
 import { uid } from "../lib/uid";
 import AddItemModal from "../modals/AddItemModal";
 import { colors, spacing, radii, typography } from "../lib/theme";
@@ -26,7 +27,7 @@ import { Item, ShoppingList, ItemCategory, RootStackParamList } from "../types/i
 import { useTheme } from "../lib/themeContext";
 import { Ionicons } from "@expo/vector-icons";
 import { formatDateTime } from "../lib/dateUtils";
-import { CATEGORIES, CATEGORY_LABELS, CATEGORY_ICONS } from "../lib/categories";
+import { CATEGORIES } from "../lib/categories";
 import type { StackNavigationProp } from "@react-navigation/stack";
 import type { RouteProp } from "@react-navigation/native";
 
@@ -222,10 +223,10 @@ export default function ListEditorScreen({ route, navigation }: Props) {
   const totalItems = list.items.length;
 
   function openAddModal() {
-    console.log('openAddModal called, setting modalVisible to true');
+    // console.log('openAddModal called, setting modalVisible to true');
     setEditingItem(null);
     setModalVisible(true);
-    console.log('After setModalVisible, current state:', modalVisible);
+    // console.log('After setModalVisible, current state:', modalVisible);
   }
 
   function openEditModal(item: Item) {
@@ -274,14 +275,15 @@ export default function ListEditorScreen({ route, navigation }: Props) {
     ]);
   }
 
-  function onSaveTitle() {
-    if (!list) return;
+  // function onSaveTitle() {
+  //   if (!list) return;
 
-    if (title.trim() && title !== list.title) {
-      dispatch(updateListTitle({ id: list.id, title: title.trim() }));
-    }
-    navigation.goBack();
-  }
+  //   if (title.trim() && title !== list.title) {
+  //     dispatch(updateListTitle({ id: list.id, title: title.trim() }));
+  //   }
+  //   navigation.goBack();
+  // }
+
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
@@ -328,24 +330,7 @@ export default function ListEditorScreen({ route, navigation }: Props) {
       </View>
 
       {showCreatedDate &&  <View style={[styles.statsBar, { backgroundColor: theme.colors.surface }]}>
-        {/* {totalItems > 0 && (
-          <>
-            <Text style={[styles.statsText, { color: theme.colors.onSurfaceVariant }]}>
-              {checkedCount} of {totalItems} items completed
-            </Text>
-            <View style={[styles.progressBar, { backgroundColor: theme.colors.surfaceVariant }]}>
-              <View
-                style={[
-                  styles.progressFill,
-                  {
-                    width: `${(checkedCount / totalItems) * 100}%`,
-                    backgroundColor: theme.colors.primary
-                  }
-                ]}
-              />
-            </View>
-          </>
-        )} */}
+      
         <Text style={[styles.dateText, { color: theme.colors.onSurfaceVariant }]}>
           Created {formatDateTime(list.createdAt)}
         </Text>
@@ -354,80 +339,11 @@ export default function ListEditorScreen({ route, navigation }: Props) {
 
       {/* Category Filter Row */}
       {list.items.length > 0 && (
-        <View style={[styles.categoryFilterSection, { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.outline }]}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.categoryFilterScrollContent}
-          >
-            <TouchableOpacity
-              onPress={() => setSelectedCategory(null)}
-              style={[
-                styles.categoryFilterChip,
-                {
-                  backgroundColor: selectedCategory === null
-                    ? theme.colors.primary
-                    : theme.colors.surfaceVariant,
-                },
-              ]}
-              activeOpacity={0.7}
-            >
-              <Text
-                style={[
-                  styles.categoryFilterChipText,
-                  {
-                    color: selectedCategory === null
-                      ? colors.onPrimary
-                      : theme.colors.onSurfaceVariant,
-                  },
-                ]}
-              >
-                All
-              </Text>
-            </TouchableOpacity>
-            {CATEGORIES.map((cat) => {
-              const hasItems = list.items.some(item => item.category === cat);
-              if (!hasItems) return null;
-
-              return (
-                <TouchableOpacity
-                  key={cat}
-                  onPress={() => setSelectedCategory(cat)}
-                  style={[
-                    styles.categoryFilterChip,
-                    {
-                      backgroundColor: selectedCategory === cat
-                        ? theme.colors.primary
-                        : theme.colors.surfaceVariant,
-                    },
-                  ]}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons
-                    name={CATEGORY_ICONS[cat] as keyof typeof Ionicons.glyphMap}
-                    size={16}
-                    color={selectedCategory === cat
-                      ? colors.onPrimary
-                      : theme.colors.onSurfaceVariant}
-                    style={styles.categoryFilterIcon}
-                  />
-                  <Text
-                    style={[
-                      styles.categoryFilterChipText,
-                      {
-                        color: selectedCategory === cat
-                          ? colors.onPrimary
-                          : theme.colors.onSurfaceVariant,
-                      },
-                    ]}
-                  >
-                    {CATEGORY_LABELS[cat]}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-        </View>
+        <ItemsCategories
+          selectedCategory={selectedCategory}
+          onCategorySelect={setSelectedCategory}
+          items={list.items}
+        />
       )}
 
       <ScrollView
@@ -574,7 +490,7 @@ export default function ListEditorScreen({ route, navigation }: Props) {
       </ScrollView>
 
       {/* Add Item Button */}
-      <View style={[styles.addButtonContainer, { backgroundColor: 'transparent' }]}>
+      <View style={styles.addButtonContainer}>
         {/* <View style={[styles.addButtonContainer, { backgroundColor: theme.colors.surface }]}> */}
         <TouchableOpacity
           onPress={openAddModal}
@@ -615,8 +531,8 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
   },
   addButtonContainer: {
-    borderTopColor: colors.outline,
-    borderTopWidth: 1,
+    // borderTopColor: colors.outline,
+    // borderTopWidth: 1,
     paddingBottom: spacing.lg,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
@@ -631,30 +547,6 @@ const styles = StyleSheet.create({
     height: 36,
     justifyContent: "center",
     width: 36,
-  },
-  categoryFilterChip: {
-    alignItems: 'center',
-    borderRadius: 10,
-    flexDirection: 'row',
-    gap: spacing.xs,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    // marginRight: spacing.sm,
-  },
-  categoryFilterChipText: {
-    fontSize: typography.bodySmall.fontSize,
-    fontWeight: typography.label.fontWeight as 500,
-  },
-  categoryFilterIcon: {
-    marginRight: 0,
-  },
-  categoryFilterScrollContent: {
-    gap: spacing.xs,
-    paddingHorizontal: spacing.lg,
-  },
-  categoryFilterSection: {
-    borderBottomWidth: 1,
-    paddingVertical: spacing.md,
   },
   container: { backgroundColor: colors.background, flex: 1 },
   dateText: {

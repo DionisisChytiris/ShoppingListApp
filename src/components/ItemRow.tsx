@@ -60,13 +60,13 @@ export default function ItemRow({ item, onToggle, onEdit, onDelete }: Props) {
           </Text>
         </View>
 
-        <View>
+        {/* <View style={{position: 'absolute', top: '-55%', right: '20%'}}>
           {item.price && (
             <Text style={[styles.metaText, { color: theme.colors.onSurfaceVariant, paddingRight: 10 }]}>
               £{item.price.toFixed(2)}
             </Text>
           )}
-        </View>
+        </View> */}
       </View>
 
       {/* Item Info */}
@@ -126,12 +126,12 @@ export default function ItemRow({ item, onToggle, onEdit, onDelete }: Props) {
         </View>
       )}
 
-      <View style={{ position: 'absolute', bottom: '0%', left: 10 }}>
+      <View style={{ position: 'absolute', bottom: '0%', left: 0 }}>
         
-        {item.quantity && item.quantity > 1 && (
+        {item.quantity && item.quantity > 1 ? (
           <View style={styles.QuantityContainer}>
 
-            <Text style={[styles.metaText, { color: theme.colors.onSurfaceVariant , fontSize: 20, paddingBottom: 5}]}>
+            <Text style={[styles.metaText, { color: theme.colors.onSurfaceVariant , fontSize: typography.label.fontSize * 1.2, paddingBottom: 5}]}>
               Qty: {item.quantity}
             </Text>
             {item.price && (
@@ -140,7 +140,17 @@ export default function ItemRow({ item, onToggle, onEdit, onDelete }: Props) {
               </Text>
             )}
           </ View>
+        ):  <View style={styles.QuantityContainer}>
+
+        <Text style={[styles.metaText, { color: theme.colors.onSurfaceVariant , fontSize: typography.label.fontSize * 1.2, paddingBottom: 5}]}>
+          Qty:1
+        </Text>
+        {item.price && (
+          <Text style={[styles.metaText, { color: theme.colors.onSurfaceVariant }]}>
+            (£{(1* item.price).toFixed(2)})
+          </Text>
         )}
+      </ View>}
       </View>
 
       {/* Image Modal */}
@@ -181,6 +191,14 @@ export default function ItemRow({ item, onToggle, onEdit, onDelete }: Props) {
       >
         <Ionicons name="create-outline" size={12} color={theme.colors.primary} />
       </TouchableOpacity>
+
+      <View style={{position: 'absolute', bottom: 10, right: '40%'}}>
+          {item.price && (
+            <Text style={[styles.metaText, { color: theme.colors.onSurfaceVariant, paddingRight: 10 }]}>
+              £{item.price.toFixed(2)}
+            </Text>
+          )}
+        </View>
 
       {/* Delete icon - Bottom Right */}
       <TouchableOpacity
