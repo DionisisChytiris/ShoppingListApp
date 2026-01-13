@@ -1,0 +1,4 @@
+adb -s emulator-5562 emu kill
+adb kill-server
+adb start-server
+adb devices

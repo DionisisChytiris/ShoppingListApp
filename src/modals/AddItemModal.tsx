@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Modal,
   View,
@@ -10,6 +10,8 @@ import {
   Platform,
   Pressable,
   ScrollView,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
@@ -31,6 +33,13 @@ interface AddItemModalProps {
 
 export default function AddItemModal({ visible, onClose, onSave, editingItem }: AddItemModalProps) {
   const { theme } = useTheme();
+  
+  useEffect(() => {
+    if (visible) {
+      console.log('AddItemModal: Modal should be visible now');
+    }
+  }, [visible]);
+  
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
@@ -38,6 +47,7 @@ export default function AddItemModal({ visible, onClose, onSave, editingItem }: 
   const [photo, setPhoto] = useState<string | null>(null);
   const [category, setCategory] = useState<ItemCategory | undefined>(undefined);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const nameInputRef = useRef<TextInput>(null);
 
   useEffect(() => {
     if (editingItem) {
@@ -122,17 +132,34 @@ export default function AddItemModal({ visible, onClose, onSave, editingItem }: 
   };
 
   return (
-    <Modal transparent visible={visible} animationType="slide" onRequestClose={handleClose}>
-      <Pressable style={styles.overlay} onPress={handleClose}>
+    <Modal 
+      transparent 
+      visible={visible} 
+      animationType="slide" 
+      onRequestClose={handleClose}
+      statusBarTranslucent={true}
+    >
+      <Pressable 
+        style={styles.overlay}
+        onPress={() => {
+          Keyboard.dismiss();
+          handleClose();
+        }}
+      >
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           keyboardVerticalOffset={0}
-        >
-          <View style={[styles.modalContent, { backgroundColor: theme.colors.surface }]}>
+          style={{ justifyContent: 'flex-end', flex: 1, width: '100%' }}
+          pointerEvents="box-none"
+          >
+          <Pressable 
+            onPress={(e) =>{e.stopPropagation(), handleClose()}}
+            style={{ width: '100%' }}
+            >
+            <View style={[styles.modalContent, { backgroundColor: theme.colors.surface, width: '100%' }]}>
             <SafeAreaView edges={['bottom']} style={styles.safeArea}>
               {/* Handle bar */}
               <View style={[styles.handleBar, { backgroundColor: theme.colors.outline }]} />
-              {/* <View style={[styles.handleBar, { backgroundColor: theme.colors.outline }]} > */}
               {editingItem && (
                 <View style={styles.editingBadge}>
                   {/* <View style={[styles.editingBadge, { backgroundColor: theme.colors.primaryLight }]}> */}
@@ -228,6 +255,12 @@ export default function AddItemModal({ visible, onClose, onSave, editingItem }: 
                             return newErrors;
                           });
                         }
+                        // Focus the name input after category is selected
+                        if (!editingItem && nameInputRef.current) {
+                          setTimeout(() => {
+                            nameInputRef.current?.focus();
+                          }, 100);
+                        }
                       }}
                       style={[
                         styles.categoryChip,
@@ -302,6 +335,7 @@ export default function AddItemModal({ visible, onClose, onSave, editingItem }: 
                           style={styles.inputIcon}
                         />
                         <TextInput
+                          ref={nameInputRef}
                           placeholder="Item name"
                           placeholderTextColor={theme.colors.onSurfaceVariant}
                           value={name}
@@ -317,8 +351,8 @@ export default function AddItemModal({ visible, onClose, onSave, editingItem }: 
                             }
                           }}
                           style={[styles.input, { color: theme.colors.onSurface }]}
-                          autoFocus={!editingItem}
                           returnKeyType="next"
+                          editable={!!category}
                         />
                       </View>
                       {getFieldError(errors, 'name') && (
@@ -366,6 +400,7 @@ export default function AddItemModal({ visible, onClose, onSave, editingItem }: 
                           }}
                           style={[styles.priceInput, { color: theme.colors.onSurface }]}
                           returnKeyType="next"
+                          editable={!!category}
                         />
                       </View>
                       {getFieldError(errors, 'price') && (
@@ -415,6 +450,7 @@ export default function AddItemModal({ visible, onClose, onSave, editingItem }: 
                           }}
                           style={[styles.priceInput, { color: theme.colors.onSurface }]}
                           returnKeyType="next"
+                          editable={!!category}
                         />
                       </View>
                       {getFieldError(errors, 'quantity') && (
@@ -427,7 +463,7 @@ export default function AddItemModal({ visible, onClose, onSave, editingItem }: 
                     </View>
                   </View>
 
-                  <View>
+                  {/* <View>
                     <View
                       style={[
                         styles.descriptionWrapper,
@@ -465,6 +501,7 @@ export default function AddItemModal({ visible, onClose, onSave, editingItem }: 
                         numberOfLines={2}
                         style={[styles.descriptionInput, { color: theme.colors.onSurface }]}
                         textAlignVertical="top"
+                        editable={!!category}
                       />
                     </View>
                     {getFieldError(errors, 'description') && (
@@ -472,7 +509,7 @@ export default function AddItemModal({ visible, onClose, onSave, editingItem }: 
                         {getFieldError(errors, 'description')}
                       </Text>
                     )}
-                  </View>
+                  </View> */}
 
                   <PhotoPicker uri={photo ?? undefined} onChange={setPhoto} theme={theme} />
                 </View>
@@ -481,7 +518,8 @@ export default function AddItemModal({ visible, onClose, onSave, editingItem }: 
             
             </SafeAreaView>
           </View>
-        </KeyboardAvoidingView>
+          </Pressable>
+          </KeyboardAvoidingView>
       </Pressable>
     </Modal>
   );
@@ -611,16 +649,19 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 60,
     elevation: 20,
     maxHeight: '90%',
-    minHeight: 500,
+    minHeight: 380,
+    width: '100%',
     shadowColor: '#000',
     shadowOffset: { width: 2, height: -4 },
     shadowOpacity: 0.5,
     shadowRadius: 25,
   },
   overlay: {
-    backgroundColor: 'transparent',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     flex: 1,
     justifyContent: 'flex-end',
+    width: '100%',
+    height: '100%',
   },
   priceInput: {
     flex: 1,

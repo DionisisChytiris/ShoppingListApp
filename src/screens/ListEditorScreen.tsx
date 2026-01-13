@@ -222,8 +222,10 @@ export default function ListEditorScreen({ route, navigation }: Props) {
   const totalItems = list.items.length;
 
   function openAddModal() {
+    console.log('openAddModal called, setting modalVisible to true');
     setEditingItem(null);
     setModalVisible(true);
+    console.log('After setModalVisible, current state:', modalVisible);
   }
 
   function openEditModal(item: Item) {
