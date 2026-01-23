@@ -275,36 +275,36 @@ export default function ListEditorScreen({ route, navigation }: Props) {
     ]);
   }
 
-  // function onSaveTitle() {
-  //   if (!list) return;
+  function onSaveTitle() {
+    if (!list) return;
 
-  //   if (title.trim() && title !== list.title) {
-  //     dispatch(updateListTitle({ id: list.id, title: title.trim() }));
-  //   }
-  //   navigation.goBack();
-  // }
+    if (title.trim() && title !== list.title) {
+      dispatch(updateListTitle({ id: list.id, title: title.trim() }));
+    }
+    navigation.goBack();
+  }
 
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
       <View style={[styles.header, { borderBottomColor: theme.colors.outline }]}>
         <TouchableOpacity
-          onPress={() => navigation.goBack()}
+          onPress={onSaveTitle}
           style={[styles.backButton, { backgroundColor: theme.colors.surfaceVariant }]}
           activeOpacity={0.7}
         >
           <Ionicons name="arrow-back" size={20} color={theme.colors.onSurface} />
         </TouchableOpacity>
-        <View style={{flex:1, marginTop: 5}}>
+        {/* <View style={{flex:1, marginTop: 5}}>
           <Text  style={[styles.titleInput, { color: theme.colors.onSurface }]}>{title}</Text>
-        </View>
-        {/* <TextInput
+        </View> */}
+        <TextInput
           value={title}
           onChangeText={setTitle}
           style={[styles.titleInput, { color: theme.colors.onSurface }]}
           placeholder="List name"
           placeholderTextColor={theme.colors.onSurfaceVariant}
-        /> */}
+        />
         <TouchableOpacity 
         style={{ width: 50, height: 40, justifyContent: 'center', alignItems: 'center'}}
         onPress={() => setShowCreatedDate(!showCreatedDate)}

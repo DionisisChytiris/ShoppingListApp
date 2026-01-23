@@ -53,3 +53,21 @@ export const CATEGORY_ICONS: Record<ItemCategory, string> = {
   'other': 'cube-outline',
 };
 
+
+export const CATEGORY_IMAGES: Record<ItemCategory, any> = {
+  'fruits': require('../../assets/images/fruit.png'),
+  'salad': require('../../assets/images/salad.png'),
+  'dairy': require('../../assets/images/dairy.png'),
+  'meat': require('../../assets/images/meat.png'),
+  'fish': require('../../assets/images/fish.png'),
+  'vegetables': require('../../assets/images/Vegetable.png'),
+  'frozen': require('../../assets/images/fish.png'),
+  'snacks': require('../../assets/images/snacks.png'),
+  'beverages': require('../../assets/images/drinks.png'),
+  'household care': require('../../assets/images/salad.png'),
+  'health': require('../../assets/images/salad.png'),
+  'pet': require('../../assets/images/salad.png'),
+  'home': require('../../assets/images/salad.png'),
+  'other': require('../../assets/images/salad.png'),
+};
+

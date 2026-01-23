@@ -4,7 +4,7 @@ import { Item } from '../types';
 import { colors, spacing, radii, typography } from '../lib/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../lib/themeContext';
-import { CATEGORY_LABELS, CATEGORY_ICONS } from '../lib/categories';
+import { CATEGORY_LABELS, CATEGORY_IMAGES, CATEGORY_ICONS } from '../lib/categories';
 
 /* eslint-disable react-native/no-inline-styles */
 
@@ -113,12 +113,18 @@ export default function ItemRow({ item, onToggle, onEdit, onDelete }: Props) {
           />
         </TouchableOpacity>
       ) : (
-        <View style={[styles.imageContainer, styles.placeholderImage, { backgroundColor: theme.colors.surfaceVariant }]}>
+        // <View style={[styles.imageContainer, styles.placeholderImage, { backgroundColor: theme.colors.surfaceVariant }]}>
+        <View style={[styles.imageContainer, styles.placeholderImage, { backgroundColor: 'transparent'}]}>
           {item.category ? (
-            <Ionicons
-              name={CATEGORY_ICONS[item.category] as keyof typeof Ionicons.glyphMap}
-              size={40}
-              color={theme.colors.onSurfaceVariant}
+            // <Ionicons
+            //   name={CATEGORY_ICONS[item.category] as keyof typeof Ionicons.glyphMap}
+            //   size={40}
+            //   color={theme.colors.onSurfaceVariant}
+            // />
+            <Image
+              source={CATEGORY_IMAGES[item.category]}
+              style={styles.productImageOriginal}
+              resizeMode="contain"
             />
           ) : (
             <Ionicons name="image-outline" size={24} color={theme.colors.onSurfaceVariant} />
@@ -127,11 +133,11 @@ export default function ItemRow({ item, onToggle, onEdit, onDelete }: Props) {
       )}
 
       <View style={{ position: 'absolute', bottom: '0%', left: 0 }}>
-        
+
         {item.quantity && item.quantity > 1 ? (
           <View style={styles.QuantityContainer}>
 
-            <Text style={[styles.metaText, { color: theme.colors.onSurfaceVariant , fontSize: typography.label.fontSize * 1.2, paddingBottom: 5}]}>
+            <Text style={[styles.metaText, { color: theme.colors.onSurfaceVariant, fontSize: typography.label.fontSize * 1.2, paddingBottom: 5 }]}>
               Qty: {item.quantity}
             </Text>
             {item.price && (
@@ -140,17 +146,17 @@ export default function ItemRow({ item, onToggle, onEdit, onDelete }: Props) {
               </Text>
             )}
           </ View>
-        ):  <View style={styles.QuantityContainer}>
+        ) : <View style={styles.QuantityContainer}>
 
-        <Text style={[styles.metaText, { color: theme.colors.onSurfaceVariant , fontSize: typography.label.fontSize * 1.2, paddingBottom: 5}]}>
-          Qty:1
-        </Text>
-        {item.price && (
-          <Text style={[styles.metaText, { color: theme.colors.onSurfaceVariant }]}>
-            (£{(1* item.price).toFixed(2)})
+          <Text style={[styles.metaText, { color: theme.colors.onSurfaceVariant, fontSize: typography.label.fontSize * 1.2, paddingBottom: 5 }]}>
+            Qty:1
           </Text>
-        )}
-      </ View>}
+          {item.price && (
+            <Text style={[styles.metaText, { color: theme.colors.onSurfaceVariant }]}>
+              (£{(1 * item.price).toFixed(2)})
+            </Text>
+          )}
+        </ View>}
       </View>
 
       {/* Image Modal */}
@@ -192,13 +198,13 @@ export default function ItemRow({ item, onToggle, onEdit, onDelete }: Props) {
         <Ionicons name="create-outline" size={12} color={theme.colors.primary} />
       </TouchableOpacity>
 
-      <View style={{position: 'absolute', bottom: 10, right: '40%'}}>
-          {item.price && (
-            <Text style={[styles.metaText, { color: theme.colors.onSurfaceVariant, paddingRight: 10 }]}>
-              £{item.price.toFixed(2)}
-            </Text>
-          )}
-        </View>
+      <View style={{ position: 'absolute', bottom: 10, right: '40%' }}>
+        {item.price && (
+          <Text style={[styles.metaText, { color: theme.colors.onSurfaceVariant, paddingRight: 10 }]}>
+            £{item.price.toFixed(2)}
+          </Text>
+        )}
+      </View>
 
       {/* Delete icon - Bottom Right */}
       <TouchableOpacity
@@ -214,22 +220,22 @@ export default function ItemRow({ item, onToggle, onEdit, onDelete }: Props) {
 
 const styles = StyleSheet.create({
   QuantityContainer: {
-   alignItems: 'center',
-   // borderRadius: radii.md,
-   bottom: spacing.xxl,
-   // elevation: 3,
-   height: 80,
-   justifyContent: 'center',
-   // overflow: 'hidden',
-   left: 0,
-   position: 'absolute',
-   // shadowColor: '#000',
-   // shadowOffset: { width: 0, height: 2 },
-   // shadowOpacity: 0.15,
-   // shadowRadius: 4,
-   width: 80,
-   zIndex: 5,
- },
+    alignItems: 'center',
+    // borderRadius: radii.md,
+    bottom: spacing.xxl,
+    // elevation: 3,
+    height: 80,
+    justifyContent: 'center',
+    // overflow: 'hidden',
+    left: 0,
+    position: 'absolute',
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.15,
+    // shadowRadius: 4,
+    width: 80,
+    zIndex: 5,
+  },
   card: {
     borderRadius: radii.lg,
     elevation: 4,
@@ -324,16 +330,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: radii.md,
     bottom: spacing.xxl,
-    elevation: 3,
+    // elevation: 3,
     height: 80,
     justifyContent: 'center',
     overflow: 'hidden',
     position: 'absolute',
     right: spacing.sm,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.15,
+    // shadowRadius: 4,
     width: 80,
     zIndex: 5,
   },
@@ -370,6 +376,10 @@ const styles = StyleSheet.create({
     height: '100%',
     width: '100%',
   },
+  productImageOriginal: {
+    height: '80%',
+    width: '80%',
+  },
   // title: {
   //   borderRadius: radii.sm,
   //   fontSize: typography.body.fontSize,
@@ -383,5 +393,5 @@ const styles = StyleSheet.create({
   //   top: spacing.sm,
   //   zIndex: 10
   // },
- 
+
 });
