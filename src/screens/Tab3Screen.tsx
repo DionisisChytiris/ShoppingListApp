@@ -264,7 +264,7 @@ export default function Tab3Screen() {
             {favoriteLists.length} {favoriteLists.length === 1 ? t('app.list') : t('app.lists')}
           </Text>
         </View>
-        <View style={styles.headerButtons}>
+        {/* <View style={styles.headerButtons}>
           <TouchableOpacity
             style={[styles.iconButton, { backgroundColor: theme.colors.surface }]}
             onPress={() => navigation.navigate('Settings')}
@@ -272,7 +272,7 @@ export default function Tab3Screen() {
           >
             <Ionicons name="settings-outline" size={22} color={theme.colors.primary} />
           </TouchableOpacity>
-        </View>
+        </View> */}
       </View>
 
       <ScrollView

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, GestureResponderEvent, Animated, PanResponder, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, GestureResponderEvent } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppSelector, useAppDispatch } from '../hooks/index';
 import { toggleFavorite, deleteList } from '../../redux/listsSlice';
@@ -11,9 +11,9 @@ import { useNavigation, NavigationProp } from '@react-navigation/native';
 import CreateListModal from '../modals/CreateNesList';
 import { formatShortDateTime } from '../lib/dateUtils';
 import { useTranslation } from '../hooks/useTranslation';
+import { SwipeableListCard } from '../components/SwipeableListCard';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const SWIPE_THRESHOLD = 100;
+// const SWIPE_THRESHOLD = 100;
 const DELETE_BUTTON_WIDTH = 100;
 
 type RootStackParamList = {
@@ -28,20 +28,7 @@ export default function HomeScreen() {
   const { theme } = useTheme();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [modalVisible, setModalVisible] = useState(false);
-  const deleteTimers = useRef<Record<string, NodeJS.Timeout>>({});
-  const translateX = useRef<Record<string, Animated.Value>>({});
-  const panResponders = useRef<Record<string, any>>({});
-
-  // Cleanup timers on unmount
-  useEffect(() => {
-    return () => {
-      Object.values(deleteTimers.current).forEach((timer) => {
-        if (timer) clearTimeout(timer);
-      });
-      deleteTimers.current = {};
-    };
-  }, []);
-
+ 
   // Get sorted lists
   const sortedLists = [...lists].sort((a, b) => b.createdAt - a.createdAt);
   const recentList = sortedLists[0] || null;
@@ -52,108 +39,12 @@ export default function HomeScreen() {
     dispatch(toggleFavorite({ id }));
   };
 
-  const getTranslateX = (id: string) => {
-    if (!translateX.current[id]) {
-      translateX.current[id] = new Animated.Value(0);
-    }
-    return translateX.current[id];
-  };
-
-  const getPanResponder = (id: string) => {
-    if (panResponders.current[id]) {
-      return panResponders.current[id];
-    }
-
-    const pan = PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: (_, gestureState) => {
-        return Math.abs(gestureState.dx) > 10;
-      },
-      onPanResponderGrant: () => {
-        // Don't clear timer here - let it continue if already running
-        // Only clear if user is swiping back to close
-      },
-      onPanResponderMove: (_, gestureState) => {
-        // Only allow swiping left (negative dx)
-        if (gestureState.dx < 0) {
-          getTranslateX(id).setValue(gestureState.dx);
-        }
-      },
-      onPanResponderRelease: (_, gestureState) => {
-        const shouldOpen = gestureState.dx < -SWIPE_THRESHOLD;
-        
-        if (shouldOpen) {
-          // Start auto-delete timer immediately when threshold is reached
-          handleSwipeOpen(id);
-          
-          // Animate to open position
-          Animated.spring(getTranslateX(id), {
-            toValue: -DELETE_BUTTON_WIDTH,
-            useNativeDriver: true,
-            tension: 50,
-            friction: 7,
-          }).start();
-        } else {
-          // Animate back to closed position
-          Animated.spring(getTranslateX(id), {
-            toValue: 0,
-            useNativeDriver: true,
-            tension: 50,
-            friction: 7,
-          }).start();
-          
-          // Clear timer if closing
-          handleSwipeClose(id);
-        }
-      },
-    });
-
-    panResponders.current[id] = pan;
-    return pan;
-  };
-
-  const onDeleteList = (id: string) => {
-    // Clear any pending timer
-    if (deleteTimers.current[id]) {
-      clearTimeout(deleteTimers.current[id]);
-      delete deleteTimers.current[id];
-    }
-    // Reset animation
-    if (translateX.current[id]) {
-      Animated.timing(translateX.current[id], {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }).start();
-    }
-    dispatch(deleteList({ id }));
-  };
-
-  const handleSwipeOpen = (id: string) => {
-    // Clear any existing timer for this item
-    if (deleteTimers.current[id]) {
-      clearTimeout(deleteTimers.current[id]);
-    }
-    // Start a 0.5-second timer to auto-delete
-    deleteTimers.current[id] = setTimeout(() => {
-      onDeleteList(id);
-    }, 500);
-  };
-
-  const handleSwipeClose = (id: string) => {
-    // Clear the timer if user swipes back
-    if (deleteTimers.current[id]) {
-      clearTimeout(deleteTimers.current[id]);
-      delete deleteTimers.current[id];
-    }
-  };
-
-  const renderListCard = (item: ShoppingList, showActions: boolean = true, enableSwipe: boolean = true) => {
+  const renderListCard = (item: ShoppingList, showActions = true, enableSwipe = true) => {
     const checkedCount = item.items.filter((i) => i.checked).length;
     const totalItems = item.items.length;
     const progress = totalItems > 0 ? checkedCount / totalItems : 0;
-
-    const cardContent = (
+  
+    const card = (
       <TouchableOpacity
         style={[styles.card, { backgroundColor: theme.colors.surface }]}
         onPress={() => navigation.navigate('ListEditor', { listId: item.id })}
@@ -164,18 +55,24 @@ export default function HomeScreen() {
             <View style={[styles.cardIcon, { backgroundColor: theme.colors.primaryLight }]}>
               <Ionicons name="list" size={20} color={theme.colors.primary} />
             </View>
+  
             <View style={styles.cardTextContainer}>
               <Text style={[styles.cardTitle, { color: theme.colors.onSurface }]} numberOfLines={1}>
                 {item.title}
               </Text>
+  
               <Text style={[styles.cardMeta, { color: theme.colors.onSurfaceVariant }]}>
-                {totalItems === 0 ? 'No items yet' : `${checkedCount} of ${totalItems} items`}
+                {totalItems === 0
+                  ? 'No items yet'
+                  : `${checkedCount} of ${totalItems} items`}
               </Text>
+  
               <Text style={[styles.cardDate, { color: theme.colors.onSurfaceVariant }]}>
                 Created {formatShortDateTime(item.createdAt)}
               </Text>
             </View>
           </View>
+  
           {totalItems > 0 && (
             <View style={[styles.progressBar, { backgroundColor: theme.colors.surfaceVariant }]}>
               <View
@@ -190,6 +87,7 @@ export default function HomeScreen() {
             </View>
           )}
         </View>
+  
         {showActions && (
           <View style={styles.cardActions}>
             <TouchableOpacity
@@ -207,57 +105,19 @@ export default function HomeScreen() {
         )}
       </TouchableOpacity>
     );
-
-    if (!enableSwipe) {
-      return cardContent;
-    }
-
-    const translateXValue = getTranslateX(item.id);
-    const panResponder = getPanResponder(item.id);
-    const deleteButtonOpacity = translateXValue.interpolate({
-      inputRange: [-DELETE_BUTTON_WIDTH, 0],
-      outputRange: [1, 0],
-      extrapolate: 'clamp',
-    });
-
+  
+    if (!enableSwipe) return card;
+  
     return (
-      <View style={styles.swipeContainer}>
-        {/* Delete button behind the card */}
-        <Animated.View
-          style={[
-            styles.deleteButtonContainer,
-            {
-              opacity: deleteButtonOpacity,
-              backgroundColor: colors.error,
-            },
-          ]}
-        >
-          <TouchableOpacity
-            style={styles.deleteButton}
-            onPress={() => onDeleteList(item.id)}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="trash" size={24} color="#fff" />
-            <Text style={styles.deleteActionText}>Deleting...</Text>
-          </TouchableOpacity>
-        </Animated.View>
-        
-        {/* Swipeable card */}
-        <Animated.View
-          style={[
-            styles.swipeableCard,
-            {
-              transform: [{ translateX: translateXValue }],
-            },
-          ]}
-          {...panResponder.panHandlers}
-        >
-          {cardContent}
-        </Animated.View>
-      </View>
+      <SwipeableListCard
+        id={item.id}
+        onDelete={() => dispatch(deleteList({ id: item.id }))}
+      >
+        {card}
+      </SwipeableListCard>
     );
   };
-
+  
   return (
     <SafeAreaView
       edges={['top']}
@@ -467,6 +327,7 @@ const styles = StyleSheet.create({
   headerButtons: {
     flexDirection: 'row',
     gap: spacing.sm,
+    paddingBottom: '5%'
   },
   iconButton: {
     alignItems: 'center',

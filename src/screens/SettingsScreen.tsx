@@ -66,9 +66,9 @@ export default function SettingsScreen() {
     dispatch(setLanguage(language));
   };
 
-  const handleLogout = async () => {
-    await dispatch(logout());
-  };
+  // const handleLogout = async () => {
+  //   await dispatch(logout());
+  // };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
@@ -184,7 +184,7 @@ export default function SettingsScreen() {
           </View>
 
           {/* Account Section */}
-          <View style={styles.section}>
+          {/* <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
               Account
             </Text>
@@ -249,7 +249,7 @@ export default function SettingsScreen() {
                 </Text>
               </TouchableOpacity>
             )}
-          </View>
+          </View> */}
 
           {/* About Section */}
           <View style={styles.section}>
@@ -305,7 +305,9 @@ const styles = StyleSheet.create({
     padding: spacing.md,
   },
   accountEmail: {
-    ...typography.bodySmall,
+    fontSize: typography.bodySmall.fontSize,
+    fontWeight: typography.bodySmall.fontWeight as 400,
+    lineHeight: typography.bodySmall.lineHeight,
   },
   accountInfo: {
     alignItems: 'center',
@@ -329,10 +331,14 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.lg,
   },
   aboutText: {
-    ...typography.button,
-  } as const,
+    fontSize: typography.button.fontSize,
+    fontWeight: typography.button.fontWeight as 600,
+    lineHeight: typography.button.lineHeight,
+  },
   aboutVersion: {
-    ...typography.bodySmall,
+    fontSize: typography.bodySmall.fontSize,
+    fontWeight: typography.bodySmall.fontWeight as 400,
+    lineHeight: typography.bodySmall.lineHeight,
   },
   backButton: {
     alignItems: 'center',
@@ -356,7 +362,9 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.lg,
   },
   headerTitle: {
-    ...typography.heading2,
+    fontSize: typography.heading2.fontSize,
+    fontWeight: typography.heading2.fontWeight as 700,
+    lineHeight: typography.heading2.lineHeight,
   },
   languagePreview: {
     alignItems: 'center',
@@ -378,10 +386,14 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   sectionDescription: {
-    ...typography.bodySmall,
+    fontSize: typography.bodySmall.fontSize,
+    fontWeight: typography.bodySmall.fontWeight as 400,
+    lineHeight: typography.bodySmall.lineHeight,
   },
   sectionTitle: {
-    ...typography.heading3,
+    fontSize: typography.heading3.fontSize,
+    fontWeight: typography.heading3.fontWeight as 600,
+    lineHeight: typography.heading3.lineHeight,
   },
   themeAccentDot: {
     borderColor: '#FFFFFF',
@@ -411,7 +423,9 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   themeButtonSubtitle: {
-    ...typography.bodySmall,
+    fontSize: typography.bodySmall.fontSize,
+    fontWeight: typography.bodySmall.fontWeight as 400,
+    lineHeight: typography.bodySmall.lineHeight,
   },
   themeButtonText: {
     flex: 1,

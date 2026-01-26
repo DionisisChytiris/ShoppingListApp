@@ -131,6 +131,32 @@ export default function ListEditorScreen({ route, navigation }: Props) {
     return { uncompletedGrouped: uncompletedSections, completedGrouped: completedSections };
   }, [list?.items, selectedCategory]);
 
+  // Calculate total price of all items with prices
+  const totalPrice = useMemo(() => {
+    if (!list) return 0;
+    
+    return list.items.reduce((sum, item) => {
+      if (item.price !== undefined && item.price !== null) {
+        const quantity = item.quantity || 1;
+        return sum + (item.price * quantity);
+      }
+      return sum;
+    }, 0);
+  }, [list?.items]);
+
+  // Calculate total price of only completed items with prices
+  const completedTotalPrice = useMemo(() => {
+    if (!list) return 0;
+    
+    return list.items.reduce((sum, item) => {
+      if (item.checked && item.price !== undefined && item.price !== null) {
+        const quantity = item.quantity || 1;
+        return sum + (item.price * quantity);
+      }
+      return sum;
+    }, 0);
+  }, [list?.items]);
+
   // Separate items into uncompleted and completed, grouped by category (when "All" is selected)
   const { uncompletedItems, completedItems } = useMemo(() => {
     if (!list || selectedCategory !== null) return { uncompletedItems: [], completedItems: [] };
@@ -489,6 +515,32 @@ export default function ListEditorScreen({ route, navigation }: Props) {
         )}
       </ScrollView>
 
+      {/* Total Price Display */}
+      {totalPrice > 0 && (
+        <View style={[styles.totalPriceContainer, { backgroundColor: theme.colors.surface }]}>
+          <View style={[styles.totalPriceRow, { borderTopColor: theme.colors.outline }]}>
+            <View style={styles.totalPriceItem}>
+              <Text style={[styles.totalPriceLabel, { color: theme.colors.onSurfaceVariant }]}>
+                Total:
+              </Text>
+            {completedTotalPrice > 0 && (
+              <View style={[styles.totalPriceItem, styles.completedTotalPriceItem]}>
+                {/* <Text style={[styles.totalPriceLabel, { color: theme.colors.onSurfaceVariant }]}>
+                  Completed:
+                </Text> */}
+                <Text style={[styles.totalPriceValue, { color: 'gray', fontSize: 14 }]}>
+                  £{completedTotalPrice.toFixed(2)}
+                </Text>
+              </View>
+            )}
+              <Text style={[styles.totalPriceValue, { color: theme.colors.primary }]}>
+                £{totalPrice.toFixed(2)}
+              </Text>
+            </View>
+          </View>
+        </View>
+      )}
+
       {/* Add Item Button */}
       <View style={styles.addButtonContainer}>
         {/* <View style={[styles.addButtonContainer, { backgroundColor: theme.colors.surface }]}> */}
@@ -634,6 +686,35 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+  },
+  totalPriceContainer: {
+    borderTopWidth: 1,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  totalPriceRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  totalPriceItem: {
+    alignItems: 'center',
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  completedTotalPriceItem: {
+    // borderLeftWidth: 1,
+    marginLeft: spacing.md,
+    paddingLeft: spacing.md,
+  },
+  totalPriceLabel: {
+    fontSize: typography.heading3.fontSize,
+    fontWeight: typography.heading3.fontWeight as 600,
+  },
+  totalPriceValue: {
+    fontSize: typography.heading3.fontSize,
+    fontWeight: typography.heading3.fontWeight as 600,
   },
   statsBar: {
     borderBottomColor: colors.outline,

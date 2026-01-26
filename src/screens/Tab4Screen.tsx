@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   content: {
     alignItems: 'center',
     flex: 1,
-    padding: spacing.lg,
+    marginTop: 20
   },
   accountCard: {
     borderRadius: radius.md,
@@ -128,19 +128,22 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   accountText: {
-    flex: 1,
+    flex: 1
   },
   container: {
-    flex: 1,
+    flex: 1
   },
   section: {
     gap: spacing.md,
-    width: '90%'
+    width: '90%',
   },
   sectionTitle: {
-    fontSize: typography.heading3.fontSize,
-    fontWeight: typography.heading3.fontWeight as 600,
-    lineHeight: typography.heading3.lineHeight,
+    fontSize: 28,
+    fontWeight: '700',
+    letterSpacing: -0.5,
+    // fontSize: typography.heading3.fontSize,
+    // fontWeight: typography.heading3.fontWeight as 600,
+    // lineHeight: typography.heading3.lineHeight,
   },
   loginButton: {
     alignItems: 'center',
