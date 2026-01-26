@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import listsReducer, { setLists } from '../redux/listsSlice';
 import languageReducer, { setLanguage } from '../redux/languageSlice';
+import authReducer from './authSlice';
 import { loadLists, saveLists } from '../src/lib/storage';
 import { loadLanguage, saveLanguage } from '../src/lib/languageStorage';
 import { ThunkAction, Action } from '@reduxjs/toolkit';
@@ -9,6 +10,7 @@ const store = configureStore({
   reducer: {
     lists: listsReducer,
     language: languageReducer,
+    auth: authReducer,
   },
 });
 
@@ -16,7 +18,6 @@ const store = configureStore({
 (async function hydrate() {
   const data = await loadLists();
   if (data && Array.isArray(data)) {
-    // @ts-expect-error - setLists expects a different type but data is valid
     store.dispatch(setLists(data));
   }
 

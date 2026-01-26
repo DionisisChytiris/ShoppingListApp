@@ -16,6 +16,8 @@ import LanguageSelectionModal from '../modals/LanguageSelectionModal';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { setLanguage, Language } from '../../redux/languageSlice';
 import { useTranslation } from '../hooks/useTranslation';
+import { logout } from '../../redux/authSlice';
+import AuthModal from '../modals/AuthModal';
 
 /* eslint-disable react-native/no-inline-styles */
 
@@ -27,6 +29,8 @@ export default function SettingsScreen() {
   const [languageModalVisible, setLanguageModalVisible] = useState(false);
   const dispatch = useAppDispatch();
   const currentLanguage = useAppSelector((state) => state.language.language);
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const [authModalVisible, setAuthModalVisible] = useState(false);
 
   // Get current theme info for display
   const getCurrentThemeInfo = () => {
@@ -60,6 +64,10 @@ export default function SettingsScreen() {
 
   const handleLanguageChange = (language: Language) => {
     dispatch(setLanguage(language));
+  };
+
+  const handleLogout = async () => {
+    await dispatch(logout());
   };
 
   return (
@@ -175,6 +183,74 @@ export default function SettingsScreen() {
             </TouchableOpacity>
           </View>
 
+          {/* Account Section */}
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
+              Account
+            </Text>
+            {isAuthenticated ? (
+              <>
+                <View
+                  style={[
+                    styles.accountCard,
+                    {
+                      backgroundColor: theme.colors.surface,
+                      borderColor: theme.colors.border,
+                    },
+                  ]}
+                >
+                  <View style={styles.accountInfo}>
+                    <Ionicons
+                      name="person-circle-outline"
+                      size={24}
+                      color={theme.colors.primary}
+                    />
+                    <View style={styles.accountText}>
+                      <Text style={[styles.accountName, { color: theme.colors.onSurface }]}>
+                        {user?.name || user?.email || 'User'}
+                      </Text>
+                      <Text style={[styles.accountEmail, { color: theme.colors.onSurfaceVariant }]}>
+                        {user?.email}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+                <TouchableOpacity
+                  style={[
+                    styles.logoutButton,
+                    {
+                      backgroundColor: theme.colors.surface,
+                      borderColor: theme.colors.border,
+                    },
+                  ]}
+                  onPress={handleLogout}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="log-out-outline" size={20} color={theme.colors.error || '#c62828'} />
+                  <Text style={[styles.logoutButtonText, { color: theme.colors.error || '#c62828' }]}>
+                    Logout
+                  </Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <TouchableOpacity
+                style={[
+                  styles.loginButton,
+                  {
+                    backgroundColor: theme.colors.primary,
+                  },
+                ]}
+                onPress={() => setAuthModalVisible(true)}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="log-in-outline" size={20} color={theme.colors.onPrimary} />
+                <Text style={[styles.loginButtonText, { color: theme.colors.onPrimary }]}>
+                  Login / Sign Up
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
           {/* About Section */}
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
@@ -213,11 +289,37 @@ export default function SettingsScreen() {
         currentLanguage={currentLanguage}
         onSelectLanguage={handleLanguageChange}
       />
+
+      <AuthModal
+        visible={authModalVisible}
+        onClose={() => setAuthModalVisible(false)}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  accountCard: {
+    borderRadius: radius.md,
+    borderWidth: 1,
+    padding: spacing.md,
+  },
+  accountEmail: {
+    ...typography.bodySmall,
+  },
+  accountInfo: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: spacing.md,
+  },
+  accountName: {
+    ...typography.body,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  accountText: {
+    flex: 1,
+  },
   aboutCard: {
     alignItems: 'center',
     borderRadius: radius.md,
@@ -326,5 +428,31 @@ const styles = StyleSheet.create({
     height: 50,
     justifyContent: 'center',
     width: 50,
+  },
+  loginButton: {
+    alignItems: 'center',
+    borderRadius: radii.md,
+    flexDirection: 'row',
+    gap: spacing.sm,
+    justifyContent: 'center',
+    paddingVertical: spacing.md,
+  },
+  loginButtonText: {
+    ...typography.button,
+    fontWeight: '600',
+  },
+  logoutButton: {
+    alignItems: 'center',
+    borderRadius: radii.md,
+    borderWidth: 1,
+    flexDirection: 'row',
+    gap: spacing.sm,
+    justifyContent: 'center',
+    marginTop: spacing.md,
+    paddingVertical: spacing.md,
+  },
+  logoutButtonText: {
+    ...typography.button,
+    fontWeight: '600',
   },
 });

@@ -11,12 +11,36 @@ import { ThemeProvider, useTheme } from "./src/lib/themeContext";
 import RootNavigator from "./RootNavigator";
 import "./src/lib/i18n"; // Initialize i18n
 import { changeLanguage } from "./src/lib/i18n";
-import { useAppSelector } from "./src/hooks";
+import { useAppSelector, useAppDispatch } from "./src/hooks";
+import { checkAuth } from "./redux/authSlice";
+import AuthModal from "./src/modals/AuthModal";
 
 const AppContent = () => {
   const [showIntro, setShowIntro] = useState<boolean>(true);
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
   const { theme } = useTheme();
   const language = useAppSelector((state) => state.language.language);
+  const { isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
+
+  // Check authentication on app start
+  useEffect(() => {
+    dispatch(checkAuth());
+  }, [dispatch]);
+
+  // Show auth modal when not authenticated (after auth check completes and intro is done)
+  useEffect(() => {
+    if (!isLoading && !showIntro && !isAuthenticated) {
+      setShowAuthModal(true);
+    }
+  }, [isLoading, showIntro, isAuthenticated]);
+
+  // Hide auth modal when user becomes authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      setShowAuthModal(false);
+    }
+  }, [isAuthenticated]);
 
   // Sync Redux language state with i18next
   useEffect(() => {
@@ -47,10 +71,17 @@ const AppContent = () => {
   }
 
   return (
-    <NavigationContainer>
-      <StatusBar style={theme.name === 'dark' ? 'light' : 'dark'} />
-      <RootNavigator />
-    </NavigationContainer>
+    <>
+      <NavigationContainer>
+        <StatusBar style={theme.name === 'dark' ? 'light' : 'dark'} />
+        <RootNavigator />
+      </NavigationContainer>
+      <AuthModal
+        visible={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        initialMode="login"
+      />
+    </>
   );
 };
 

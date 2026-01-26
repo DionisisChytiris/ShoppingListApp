@@ -57,8 +57,9 @@ export const useTheme = () => {
   if (context === undefined) {
     throw new Error('useTheme must be used within a ThemeProvider');
   }
+  const theme = themes[context.currentTheme] || themes.light;
   return {
     ...context,
-    theme: themes[context.currentTheme],
+    theme,
   };
 };
