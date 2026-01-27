@@ -245,8 +245,13 @@ export default function ListEditorScreen({ route, navigation }: Props) {
     );
   }
 
-  const checkedCount = list.items.filter((i: Item) => i.checked).length;
-  const totalItems = list.items.length;
+  // Memoize progress calculation to ensure it updates when items change
+  const { checkedCount, totalItems, progress } = useMemo(() => {
+    const checked = list.items.filter((i: Item) => i.checked).length;
+    const total = list.items.length;
+    const prog = total > 0 ? checked / total : 0;
+    return { checkedCount: checked, totalItems: total, progress: prog };
+  }, [list.items]);
 
   function openAddModal() {
     // console.log('openAddModal called, setting modalVisible to true');
@@ -340,7 +345,7 @@ export default function ListEditorScreen({ route, navigation }: Props) {
         {totalItems > 0 && (
           <View style={styles.circularProgressContainer}>
             <CircularProgress
-              progress={totalItems > 0 ? checkedCount / totalItems : 0}
+              progress={progress}
               size={40}
               strokeWidth={3}
               backgroundColor={theme.colors.surfaceVariant}
@@ -623,7 +628,7 @@ const styles = StyleSheet.create({
     top: 0,
   },
   progressText: {
-    fontSize: typography.label.fontSize,
+    fontSize: typography.label1.fontSize,
     fontWeight: typography.label.fontWeight as 600,
   },
   emptyDescription: {

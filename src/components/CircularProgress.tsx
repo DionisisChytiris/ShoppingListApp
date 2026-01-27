@@ -1,8 +1,11 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { Animated } from 'react-native';
+import Svg, { Circle } from 'react-native-svg';
 
-type CircularProgressProps = {
-  progress: number; // 0 to 1
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+
+type Props = {
+  progress: number; // 0..1
   size: number;
   strokeWidth: number;
   backgroundColor: string;
@@ -15,79 +18,49 @@ export default function CircularProgress({
   strokeWidth,
   backgroundColor,
   progressColor,
-}: CircularProgressProps) {
-  const progressAngle = Math.min(progress * 360, 360);
-  const isComplete = progress >= 1;
+}: Props) {
+  const animated = useRef(new Animated.Value(0)).current;
+
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+
+  useEffect(() => {
+    Animated.timing(animated, {
+      toValue: progress,
+      duration: 200,
+      useNativeDriver: false,
+    }).start();
+  }, [progress]);
+
+  const strokeDashoffset = animated.interpolate({
+    inputRange: [0, 1],
+    outputRange: [circumference, 0],
+  });
 
   return (
-    <View style={{ width: size, height: size }}>
-      {/* Background circle */}
-      <View
-        style={[
-          {
-            position: 'absolute',
-            width: size,
-            height: size,
-            borderRadius: size / 2,
-            borderWidth: strokeWidth,
-            borderColor: backgroundColor,
-          },
-        ]}
+    <Svg width={size} height={size}>
+      <Circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        stroke={backgroundColor}
+        strokeWidth={strokeWidth}
+        fill="none"
       />
-      {/* Progress circle */}
-      {!isComplete && progress > 0 && (
-        <View
-          style={[
-            {
-              position: 'absolute',
-              width: size,
-              height: size,
-              borderRadius: size / 2,
-              borderWidth: strokeWidth,
-              borderColor: 'transparent',
-              borderTopColor: progressColor,
-              borderRightColor: progress >= 0.25 ? progressColor : 'transparent',
-              borderBottomColor: progress >= 0.5 ? progressColor : 'transparent',
-              borderLeftColor: progress >= 0.75 ? progressColor : 'transparent',
-              transform: [{ rotate: '-90deg' }],
-            },
-          ]}
-        />
-      )}
-      {isComplete && (
-        <View
-          style={[
-            {
-              position: 'absolute',
-              width: size,
-              height: size,
-              borderRadius: size / 2,
-              borderWidth: strokeWidth,
-              borderColor: progressColor,
-            },
-          ]}
-        />
-      )}
-      {/* Mask to hide progress beyond current value */}
-      {!isComplete && progress < 1 && (
-        <View
-          style={[
-            {
-              position: 'absolute',
-              width: size,
-              height: size,
-              borderRadius: size / 2,
-              borderWidth: strokeWidth,
-              borderColor: backgroundColor,
-              borderTopColor: progress > 0.25 ? backgroundColor : 'transparent',
-              borderRightColor: progress > 0.5 ? backgroundColor : 'transparent',
-              borderBottomColor: progress > 0.75 ? backgroundColor : 'transparent',
-              transform: [{ rotate: `${-90 + progressAngle}deg` }],
-            },
-          ]}
-        />
-      )}
-    </View>
+
+      <AnimatedCircle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        stroke={progressColor}
+        strokeWidth={strokeWidth}
+        strokeDasharray={circumference}
+        strokeDashoffset={strokeDashoffset}
+        strokeLinecap="round"
+        fill="none"
+        rotation="-90"
+        origin={`${size / 2}, ${size / 2}`}
+      />
+    </Svg>
   );
 }
-

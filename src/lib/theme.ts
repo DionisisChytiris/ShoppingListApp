@@ -84,6 +84,11 @@ export const typography = {
     fontWeight: 500,
     lineHeight: 16,
   },
+  label1: {
+    fontSize: 10,
+    fontWeight: 500,
+    lineHeight: 16,
+  },
 };
 
 
