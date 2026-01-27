@@ -16,7 +16,7 @@ import LanguageSelectionModal from '../modals/LanguageSelectionModal';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { setLanguage, Language } from '../../redux/languageSlice';
 import { useTranslation } from '../hooks/useTranslation';
-import { logout } from '../../redux/authSlice';
+// import { logout } from '../../redux/authSlice';
 import AuthModal from '../modals/AuthModal';
 
 /* eslint-disable react-native/no-inline-styles */
@@ -29,7 +29,7 @@ export default function SettingsScreen() {
   const [languageModalVisible, setLanguageModalVisible] = useState(false);
   const dispatch = useAppDispatch();
   const currentLanguage = useAppSelector((state) => state.language.language);
-  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  // const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const [authModalVisible, setAuthModalVisible] = useState(false);
 
   // Get current theme info for display
@@ -299,29 +299,29 @@ export default function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  accountCard: {
-    borderRadius: radius.md,
-    borderWidth: 1,
-    padding: spacing.md,
-  },
-  accountEmail: {
-    fontSize: typography.bodySmall.fontSize,
-    fontWeight: typography.bodySmall.fontWeight as 400,
-    lineHeight: typography.bodySmall.lineHeight,
-  },
-  accountInfo: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
-  accountName: {
-    ...typography.body,
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  accountText: {
-    flex: 1,
-  },
+  // accountCard: {
+  //   borderRadius: radius.md,
+  //   borderWidth: 1,
+  //   padding: spacing.md,
+  // },
+  // accountEmail: {
+  //   fontSize: typography.bodySmall.fontSize,
+  //   fontWeight: typography.bodySmall.fontWeight as 400,
+  //   lineHeight: typography.bodySmall.lineHeight,
+  // },
+  // accountInfo: {
+  //   alignItems: 'center',
+  //   flexDirection: 'row',
+  //   gap: spacing.md,
+  // },
+  // accountName: {
+  //   ...typography.body,
+  //   fontWeight: '600',
+  //   marginBottom: 2,
+  // },
+  // accountText: {
+  //   flex: 1,
+  // },
   aboutCard: {
     alignItems: 'center',
     borderRadius: radius.md,
@@ -443,30 +443,30 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: 50,
   },
-  loginButton: {
-    alignItems: 'center',
-    borderRadius: radii.md,
-    flexDirection: 'row',
-    gap: spacing.sm,
-    justifyContent: 'center',
-    paddingVertical: spacing.md,
-  },
-  loginButtonText: {
-    ...typography.button,
-    fontWeight: '600',
-  },
-  logoutButton: {
-    alignItems: 'center',
-    borderRadius: radii.md,
-    borderWidth: 1,
-    flexDirection: 'row',
-    gap: spacing.sm,
-    justifyContent: 'center',
-    marginTop: spacing.md,
-    paddingVertical: spacing.md,
-  },
-  logoutButtonText: {
-    ...typography.button,
-    fontWeight: '600',
-  },
+  // loginButton: {
+  //   alignItems: 'center',
+  //   borderRadius: radii.md,
+  //   flexDirection: 'row',
+  //   gap: spacing.sm,
+  //   justifyContent: 'center',
+  //   paddingVertical: spacing.md,
+  // },
+  // loginButtonText: {
+  //   ...typography.button,
+  //   fontWeight: '600',
+  // },
+  // logoutButton: {
+  //   alignItems: 'center',
+  //   borderRadius: radii.md,
+  //   borderWidth: 1,
+  //   flexDirection: 'row',
+  //   gap: spacing.sm,
+  //   justifyContent: 'center',
+  //   marginTop: spacing.md,
+  //   paddingVertical: spacing.md,
+  // },
+  // logoutButtonText: {
+  //   ...typography.button,
+  //   fontWeight: '600',
+  // },
 });

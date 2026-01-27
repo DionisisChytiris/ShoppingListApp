@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState} from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, GestureResponderEvent } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppSelector, useAppDispatch } from '../hooks/index';
@@ -14,7 +14,7 @@ import { useTranslation } from '../hooks/useTranslation';
 import { SwipeableListCard } from '../components/SwipeableListCard';
 
 // const SWIPE_THRESHOLD = 100;
-const DELETE_BUTTON_WIDTH = 100;
+// const DELETE_BUTTON_WIDTH = 100;
 
 type RootStackParamList = {
   ListEditor: { listId: string };
@@ -374,33 +374,33 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginTop: 4,
   },
-  swipeContainer: {
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  swipeableCard: {
-    backgroundColor: 'transparent',
-  },
-  deleteButtonContainer: {
-    alignItems: 'center',
-    borderRadius: radii.md,
-    bottom: 0,
-    justifyContent: 'center',
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    width: DELETE_BUTTON_WIDTH,
-  },
-  deleteButton: {
-    alignItems: 'center',
-    flex: 1,
-    justifyContent: 'center',
-    width: '100%',
-  },
-  deleteActionText: {
-    color: '#fff',
-    fontSize: typography.bodySmall.fontSize,
-    fontWeight: '600',
-    marginTop: spacing.xs,
-  },
+  // swipeContainer: {
+  //   overflow: 'hidden',
+  //   position: 'relative',
+  // },
+  // swipeableCard: {
+  //   backgroundColor: 'transparent',
+  // },
+  // deleteButtonContainer: {
+  //   alignItems: 'center',
+  //   borderRadius: radii.md,
+  //   bottom: 0,
+  //   justifyContent: 'center',
+  //   position: 'absolute',
+  //   right: 0,
+  //   top: 0,
+  //   width: DELETE_BUTTON_WIDTH,
+  // },
+  // deleteButton: {
+  //   alignItems: 'center',
+  //   flex: 1,
+  //   justifyContent: 'center',
+  //   width: '100%',
+  // },
+  // deleteActionText: {
+  //   color: '#fff',
+  //   fontSize: typography.bodySmall.fontSize,
+  //   fontWeight: '600',
+  //   marginTop: spacing.xs,
+  // },
 });
